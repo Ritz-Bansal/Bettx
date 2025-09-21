@@ -76,7 +76,7 @@ export async function checkTransfer(req, res) {
 
     const tx = await connection.getParsedTransaction(signature, {
       maxSupportedTransactionVersion: 0, //Solana has 2 forms of transactions -- legacy and version 0, nwo the thing is ki version 0
-      //gives you ALT(Address Lookup Table) mtlb insted of storing 32 bytes of a account, they store only 1 byte i.e, good indexing of DB 
+      //gives you ALT(Address Lookup Table) mtlb insted of storing 32 bytes of a account, they store only 1 byte i.e, good indexing of DB
       commitment: "confirmed",
     });
 
@@ -163,82 +163,89 @@ export async function checkTransfer(req, res) {
 // https://vjudge.net/contest/744877
 //I can even get the live scores but then I need to hit the vjudge service again and again in some time and send the data to the client too again and againa i.e, WebSockets will be used
 export async function vJudge() {
-  const response = await axios.get(
-    `https://vjudge.net/contest/rank/single/748510`
-);
+  try {
+    console.log("before sending req");
+    const response = await axios.get(
+      `https://vjudge.net/contest/rank/single/748510`
+    );
 
-  let duration = response.data.length; //contest length in UTC
-  duration = duration / 1000; //duration in seconds
+    console.log("before sending req");
 
-  const participants = response.data.participants;
-  const submissions = response.data.submissions;
+    let duration = response.data.length; //contest length in UTC
+    duration = duration / 1000; //duration in seconds
 
-  const partiArray = Object.entries(participants); //converts the object into array of arrays -- eacch array contains two index 0 for key and 1 for value
-  const submiArray = Object.entries(submissions); //agar key nai hoga toh automatically 1 se dena chalu kar dega
+    const participants = response.data.participants;
+    const submissions = response.data.submissions;
 
-  let rank = [];
+    const partiArray = Object.entries(participants); //converts the object into array of arrays -- eacch array contains two index 0 for key and 1 for value
+    const submiArray = Object.entries(submissions); //agar key nai hoga toh automatically 1 se dena chalu kar dega
 
-  partiArray.map((participant) => {
-    const res = submiArray.filter(
-      (submission) => submission[1][0] == participant[0]
-    ); // filtering based on id
-    res.sort((a, b) => a[1][3] - b[1][3]); //Sorting will be based on time and not on the order how questions were attempted as people can attempt questions howeever they want, but they cannot fool time
+    let rank = [];
 
-    let questions = [];
-    let score = 0;
-    let time = 0;
+    partiArray.map((participant) => {
+      const res = submiArray.filter(
+        (submission) => submission[1][0] == participant[0]
+      ); // filtering based on id
+      res.sort((a, b) => a[1][3] - b[1][3]); //Sorting will be based on time and not on the order how questions were attempted as people can attempt questions howeever they want, but they cannot fool time
 
-    res.map((data) => {
-      if (data[1][2] == 0 && data[1][3] <= duration) {
-        let count = 0;
-        for (let i = 0; i < res.length; i++) {
-          //idk, Is there any optimization possible here ?
-          if (
-            res[i][1][1] == data[1][1] &&
-            res[i][1][2] == 1 &&
-            res[i][1][3] <= duration
-          ) {
-            count++;
-            if (count <= 1) {
-              //this will ensure ki only first correct ans ka time penalty mein count ho
-              time += 1200;
+      let questions = [];
+      let score = 0;
+      let time = 0;
+
+      res.map((data) => {
+        if (data[1][2] == 0 && data[1][3] <= duration) {
+          let count = 0;
+          for (let i = 0; i < res.length; i++) {
+            //idk, Is there any optimization possible here ?
+            if (
+              res[i][1][1] == data[1][1] &&
+              res[i][1][2] == 1 &&
+              res[i][1][3] <= duration
+            ) {
+              count++;
+              if (count <= 1) {
+                //this will ensure ki only first correct ans ka time penalty mein count ho
+                time += 1200;
+              }
             }
           }
+          // time += 1200;
+        } else if (data[1][2] == 1 && data[1][3] <= duration) {
+          if (questions.includes(data[1][1])) {
+            //as only ek baar hi and that too first time wale ka time count karna hai
+          } else {
+            questions.push(data[1][1]);
+            time += data[1][3];
+            score++;
+          }
         }
-        // time += 1200;
-      } else if (data[1][2] == 1 && data[1][3] <= duration) {
-        if (questions.includes(data[1][1])) {
-          //as only ek baar hi and that too first time wale ka time count karna hai
-        } else {
-          questions.push(data[1][1]);
-          time += data[1][3];
-          score++;
-        }
+      });
+      if (time != 0) {
+        rank.push({
+          name: participant[1][0],
+          penalty: time,
+          score: score,
+        });
       }
     });
-    if (time != 0) {
-      rank.push({
-        name: participant[1][0],
-        penalty: time,
-        score: score,
-      });
-    }
-  });
 
-  rank.sort((a, b) => {
-    if (a.score !== b.score) {
-      return b.score - a.score; // descending order bro
-    }
-    return a.penalty - b.penalty; // if same score, lower penalty first
-  });
+    rank.sort((a, b) => {
+      if (a.score !== b.score) {
+        return b.score - a.score; // descending order bro
+      }
+      return a.penalty - b.penalty; // if same score, lower penalty first
+    });
 
-  let id = 1;
-  rank.map((data) => {
-    data.rankId = id;
-    id++;
-  });
+    let id = 1;
+    rank.map((data) => {
+      data.rankId = id;
+      id++;
+    });
 
-  return rank;
+    return rank;
+  } catch (e) {
+    return 1;
+  }
 }
 
 //todo -- Put the  multiplier in the participant table, that will be initial multi then I can change the multi according to the bets placed on a single player
@@ -257,17 +264,7 @@ export async function odds(req, res) {
   return res.json({
     ranks: ranks,
   });
-
 }
-
-
-
-
-
-
-
-
-
 
 // More code
 // async function bets(house){
