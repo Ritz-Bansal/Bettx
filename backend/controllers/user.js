@@ -243,6 +243,8 @@ export async function vJudge() {
 
 //todo -- Put the  multiplier in the participant table, that will be initial multi then I can change the multi according to the bets placed on a single player
 export async function odds(req, res) {
+  console.log("Inside the odds function");
+
   let odds = 1;
   const ranks = await vJudge();
   ranks.map((rank) => {
@@ -251,7 +253,7 @@ export async function odds(req, res) {
     rank.odds = odd;
   });
 
-  // console.log(ranks);
+  console.log(ranks);
   return res.json({
     ranks: ranks,
   });

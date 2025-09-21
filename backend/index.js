@@ -8,6 +8,8 @@ configDotenv();
 const app = express();
 const port = process.env.PORT;
 
+console.log("Inside the main index.js")
+
 app.use(express.json());
 const allowedOrigins = [
   "http://localhost:5173", // for local frontend

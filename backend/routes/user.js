@@ -4,7 +4,8 @@ import { checkBalance, checkTransfer, odds } from "../controllers/user.js";
 
 export const userRoutes = express.Router();
 
-// console.log("Inside User route");
+console.log("Inside User route");
+
 userRoutes.get("/data", odds);
 
 userRoutes.get("/checkBalance/:walletAddress", checkBalance);
