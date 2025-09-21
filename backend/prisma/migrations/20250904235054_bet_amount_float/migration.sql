@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "public"."Bet" ALTER COLUMN "amount" SET DATA TYPE DOUBLE PRECISION;

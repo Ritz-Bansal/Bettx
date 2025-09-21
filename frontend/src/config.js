@@ -1,0 +1,1 @@
+export const URL = "https://new-hacker-arena.onrender.com"

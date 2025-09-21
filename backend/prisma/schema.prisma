@@ -1,0 +1,45 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String @id @default(uuid())
+  walletAddress String
+  signature     String @unique
+  amount        Float
+  pool          Pool[]
+  // bet           Bet[] //changed //Fck It, I will make one more DB call only
+}
+
+//todo -- migration and client generate 
+model Bet {
+  id            String @id @default(uuid())
+  VjudgeUserId  String
+  stake        Float //name changed
+  multiplier    Float
+  walletAddress String
+  // user          User @relation(fields: [transferId], references: [id]) //changed
+  // transferId    String //changed 
+  // walletAddressParticipant String @default("null")
+}
+
+model Pool {
+  id         String @id @default(uuid())
+  contest    String @unique
+  totalMoney Int
+  userId     String
+  user       User   @relation(fields: [userId], references: [id])
+}
+
+
+model Participants{
+  id          String @id @default(uuid())
+  multiplier  Int
+  VJudgeUserName  String @unique
+  
+}
