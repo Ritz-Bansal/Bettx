@@ -5,11 +5,11 @@ import App from './App.jsx'
 
 // Add error boundary for production
 window.addEventListener('error', (e) => {
-  console.error('Global error:', e.error);
+  // console.error('Global error:', e.error);
 });
 
 window.addEventListener('unhandledrejection', (e) => {
-  console.error('Unhandled promise rejection:', e.reason);
+  // console.error('Unhandled promise rejection:', e.reason);
 });
 
 try {
@@ -19,7 +19,7 @@ try {
     </StrictMode>,
   )
 } catch (error) {
-  console.error('Failed to render app:', error);
+  // console.error('Failed to render app:', error);
   document.getElementById('root').innerHTML = `
     <div style="padding: 20px; font-family: monospace; color: #00ff41; background: #0a0a0a; min-height: 100vh;">
       <h1>Hacker Arena</h1>

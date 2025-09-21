@@ -15,7 +15,7 @@ const Betting = ({ participants, refreshSiteBalance }) => {
   const wallet = useWallet();
 
   // Debug: Log participants
-  console.log("Participants in Betting component:", participants);
+  // console.log("Participants in Betting component:", participants);
   // const quickAmounts = [10, 20, 30, 40, 50]; // commented out as requested
 
   const placeBet = async (participantId, amount) => {
@@ -65,7 +65,7 @@ const Betting = ({ participants, refreshSiteBalance }) => {
         alert(betResponse.data.message || "Bet failed");
       }
     } catch (err) {
-      console.error("Bet error:", err);
+      // console.error("Bet error:", err);
       if (err.response?.data?.message) {
         alert(err.response.data.message);
       } else {
@@ -134,7 +134,7 @@ const Betting = ({ participants, refreshSiteBalance }) => {
                     }}
                     onClick={() => {
                       const entered = amountByParticipant[p.rankId];
-                      console.log("Value of Entered: ", entered);
+                      // console.log("Value of Entered: ", entered);
                       const amountToBet = entered === undefined || entered === "" ? 0 : parseFloat(entered);
                       placeBet(p.rankId, amountToBet);
                     }}

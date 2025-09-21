@@ -24,16 +24,16 @@ export async function bet(req, res) {
     const odd = odds.toFixed(2);
     rank.odds = odd;
   });
-  console.log("Ranks using the odd function inside bet to get the multiplier: ", ranks)
+  // console.log("Ranks using the odd function inside bet to get the multiplier: ", ranks)
   ranks.map((data) => {
     if(data.name == VJudgeUserId){
       multiplier = data.odds; 
-      console.log("Inside the if condition i.e, confirming the multiplier: ", multiplier);
+      // console.log("Inside the if condition i.e, confirming the multiplier: ", multiplier);
     }
   })
 
 
-  console.log("Chekcing if the value of the multiplier is updated or not: ", multiplier);
+  // console.log("Chekcing if the value of the multiplier is updated or not: ", multiplier);
   multiplier = parseFloat(multiplier);
   const InputsResponse = betInputs.safeParse({
     amount: stake,
@@ -93,14 +93,14 @@ export async function bet(req, res) {
         });
       }
     } catch (error) {
-      console.log(error);
+      // console.log(error);
       return res.json({
         message: "Error placing bet: ",
         error,
       });
     }
   } else {
-    console.log(InputsResponse.error.issues[0].message);
+    // console.log(InputsResponse.error.issues[0].message);
     return res.json({
       message: InputsResponse.error.issues[0].message,
     });

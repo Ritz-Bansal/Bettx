@@ -27,12 +27,12 @@ const Wallet = ({
     setLoader(true);
 
     const amount = parseFloat(fundAmount);
-    console.log("🔍 Starting addFunds with amount:", amount);
+    // console.log("🔍 Starting addFunds with amount:", amount);
 
     if (!amount || amount <= 0) return alert("Enter a valid amount!");
     if (!wallet.publicKey) return alert("Please connect your wallet!");
 
-    console.log("🔍 Wallet connected:", wallet.publicKey.toBase58());
+    // console.log("🔍 Wallet connected:", wallet.publicKey.toBase58());
 
     try {
       const recipient = new PublicKey(
@@ -47,19 +47,19 @@ const Wallet = ({
         })
       );
 
-      console.log("🔍 Sending transaction...");
+      // console.log("🔍 Sending transaction...");
       const signature = await wallet.sendTransaction(transaction, connection); //what is this doing ? -- getting the signature of the transaction
-      console.log("🔍 Transaction sent, signature:", signature);
+      // console.log("🔍 Transaction sent, signature:", signature);
 
-      console.log("🔍 Confirming transaction...");
+      // console.log("🔍 Confirming transaction...");
       await connection.confirmTransaction(signature, "confirmed");
-      console.log("🔍 Transaction confirmed!");
+      // console.log("🔍 Transaction confirmed!");
 
       // ✅ Show signature immediately after confirmation
       // alert(`✅ Transaction confirmed! Signature: ${signature}`);
 
       try {
-        console.log("🔍 Verifying with backend...");
+        // console.log("🔍 Verifying with backend...");
         const verifyResponse = await axios.post(`${URL}/user/checkTransfer`, {
           signature: signature,
           // walletAddress: wallet.publicKey.toBase58(),
@@ -67,7 +67,7 @@ const Wallet = ({
 
         setLoader(false);
 
-        console.log("🔍 Backend response:", verifyResponse.data);
+        // console.log("🔍 Backend response:", verifyResponse.data);
 
         if (verifyResponse.data.message === "Transfer Successfull") {
           await refreshSiteBalance(); //if the transfer is successful then the site balance has to be updated
@@ -84,7 +84,7 @@ const Wallet = ({
 
         }
       } catch (verifyError) {
-        console.error("❌ Verification error:", verifyError);
+        // console.error("❌ Verification error:", verifyError);
         alert(
           `❌ Transaction sent (${signature}) but verification failed. Check console for details.`
         );
@@ -93,7 +93,7 @@ const Wallet = ({
 
       setFundAmount("");
     } catch (err) {
-      console.error("❌ Transaction failed:", err);
+      // console.error("❌ Transaction failed:", err);
       alert("❌ Transaction failed: " + err.message);
       setLoader(false);
     }

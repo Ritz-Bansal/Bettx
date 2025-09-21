@@ -146,13 +146,13 @@ export async function checkTransfer(req, res) {
         amount: amountSol, //FE ko batau ki itna amount was added
       });
     } catch (error) {
-      console.log(error);
+      // console.log(error);
       return res.json({
         message: "Error when updating the balance",
       });
     }
   } catch (error) {
-    console.log(error);
+    // console.log(error);
     return res.json({
       message: "Error while confirming the transaction",
     });

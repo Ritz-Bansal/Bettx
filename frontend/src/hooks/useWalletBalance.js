@@ -34,7 +34,7 @@ export const useWalletBalance = () => {
             setBalance(0);
           }
         } catch (err) {
-          console.error("Error fetching site balance:", err);
+          // console.error("Error fetching site balance:", err);
           setBalance(0);
         }
 
@@ -64,7 +64,7 @@ export const useWalletBalance = () => {
         setBalance(0);
       }
     } catch (err) {
-      console.error("Error refreshing site balance:", err);
+      // console.error("Error refreshing site balance:", err);
       setBalance(0);
     }
   };

@@ -10,9 +10,9 @@ const Contests = (betHistory) => {
   //   { id: 3, title: "Dark Web Puzzle", status: "Upcoming" },
   // ];
 
-  console.log("Inside Contest");
-  console.log("Bethistory inside Contest: ", betHistory);
-  console.log("Bethistory length: ",betHistory.betHistory.length);
+  // console.log("Inside Contest");
+  // console.log("Bethistory inside Contest: ", betHistory);
+  // console.log("Bethistory length: ",betHistory.betHistory.length);
   return (
     <div className="contest-box">
       {/* <h2>Contests</h2>

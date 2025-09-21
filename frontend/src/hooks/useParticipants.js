@@ -14,7 +14,7 @@ export const useParticipants = () => {
     const fetchParticipants = async () => {
       try {
         const response = await axios.get(`${URL}/user/data`);
-        console.log("Participants response:", response.data);
+        // console.log("Participants response:", response.data);
 
         if (response.data.ranks) {
           setParticipants(response.data.ranks);
@@ -24,15 +24,15 @@ export const useParticipants = () => {
           setParticipants([]);
         }
       } catch (error) {
-        console.error("Error fetching participants:", error);
+        // console.error("Error fetching participants:", error);
         setParticipants([]);
       }
     };
     // Initial fetch
     fetchParticipants();
 
-    // Live polling every 5 seconds
-    const timer = setInterval(fetchParticipants, 5000);
+    // Live polling every 10 seconds
+    const timer = setInterval(fetchParticipants, 10000);
 
     // Cleanup on unmount
     return () => {

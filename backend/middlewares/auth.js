@@ -13,7 +13,7 @@ export async function authMiddleware(req, res, next){
         req.id = id;
         next()
     }catch(error){
-        console.log("Error in try block");
+        // console.log("Error in try block");
     }
 
 
