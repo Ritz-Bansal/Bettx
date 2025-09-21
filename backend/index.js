@@ -9,7 +9,10 @@ const app = express();
 const port = process.env.PORT;
 
 app.use(express.json());
-app.use(cors());
+const allowedOrigins = [
+  "http://localhost:5173", // for local frontend
+  "https://bettx-pied.vercel.app/", // for deployed frontend
+];
 
 app.use(allRoutes);
 
