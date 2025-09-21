@@ -14,6 +14,11 @@ const allowedOrigins = [
   "https://bettx-pied.vercel.app/", // for deployed frontend
 ];
 
+app.use(cors({
+  origin: allowedOrigins,
+  credentials: true
+}));
+
 app.use(allRoutes);
 
 app.listen(port, () => {
