@@ -169,7 +169,7 @@ export async function vJudge() {
       `https://vjudge.net/contest/rank/single/748510`
     );
 
-    console.log("before sending req");
+    console.log("after sending req");
 
     let duration = response.data.length; //contest length in UTC
     duration = duration / 1000; //duration in seconds
@@ -244,6 +244,7 @@ export async function vJudge() {
 
     return rank;
   } catch (e) {
+    console.log(e);
     return 1;
   }
 }
@@ -266,6 +267,18 @@ export async function odds(req, res) {
   });
 }
 
+
+
+export async function testAPI(req, res){
+  console.log("Inside the testAPI");
+
+const ress = await axios.get("https://jsonplaceholder.typicode.com/todos/1")
+  const data = ress.data;
+  console.log(data);
+  return res.json({
+    data: data
+});
+}
 // More code
 // async function bets(house){
 //     const k = 1 + house*0.01;
