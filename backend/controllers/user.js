@@ -164,7 +164,12 @@ export async function checkTransfer(req, res) {
 //I can even get the live scores but then I need to hit the vjudge service again and again in some time and send the data to the client too again and againa i.e, WebSockets will be used
 export async function vJudge() {
   const response = await axios.get(
-    `https://vjudge.net/contest/rank/single/748510`
+    `https://vjudge.net/contest/rank/single/748510`,
+    {
+      headers: {
+        "User-Agent": "Node.js Render Server", // pretend to be a browser
+      },
+    }
   );
 
   let duration = response.data.length; //contest length in UTC
