@@ -1,41 +1,55 @@
 import axios from "axios";
 // import jwt from "jsonwebtoken";
 // import argon2 from "argon2";
-import { prisma } from "../database/db.js";
+import { Request, Response } from "express";
+import { prisma } from "../database/db";
 import { configDotenv } from "dotenv"; //provides Tree shaking -- only imports config obejct only from the entire dotenv object -- ESM only suitable whereas importing dotnev imports  the entire dotenv object thus not valid right -- takes up a lot of space and useless also
 // import { SigninInputs, SignupInputs, AmountInputs } from "../zod/inputs.js";
 import { Connection, PublicKey, LAMPORTS_PER_SOL } from "@solana/web3.js";
 
 configDotenv();
 
+type secrets = string | undefined;
+
 // const JWT_SECRET = process.env.JWT_SECRET;
-const SOLANA_DEVNET_URL = process.env.SOLANA_DEVNET_URL;
-const WALLET_ADDRESS = process.env.WALLET_ADDRESS;
+
+//Isko Theek karo
+const SOLANA_DEVNET_URL: string = process.env.SOLANA_DEVNET_URL || " ";
+const WALLET_ADDRESS: secrets = process.env.WALLET_ADDRESS;
 const connection = new Connection(SOLANA_DEVNET_URL, "confirmed");
 // const walletAddress = new PublicKey(WALLET_ADDRESS);
 
-export async function checkBalance(req, res) {
+interface UseParams {
+  walletAddress: string;
+}
+
+export async function checkBalance(req: Request<UseParams>, res: Response) {
   const walletAddress = req.params.walletAddress;
 
+  //iss wallet address se jitne bhi trnsactions aaye hai uska record
   const allTransfers = await prisma.user.findMany({
     where: {
       walletAddress: walletAddress,
     },
   });
 
+  //iss wallet address ne jitne bhi bets ki hai uska record
   const allBets = await prisma.bet.findMany({
     where: {
       walletAddress: walletAddress,
     },
   });
 
-  let totalTransfers = 0;
-  let totalBets = 0;
-  let remainingBal = 0;
+  let totalTransfers: number = 0;
+  let totalBets: number = 0;
+  let remainingBal: number = 0;
 
+  //total money transferrred
   for (let i = 0; i < allTransfers.length; i++) {
     totalTransfers += allTransfers[i].amount;
   }
+
+  //total money spent in betting
   for (let i = 0; i < allBets.length; i++) {
     totalBets += allBets[i].stake;
   }
@@ -50,8 +64,18 @@ export async function checkBalance(req, res) {
   });
 }
 
-export async function checkTransfer(req, res) {
-  const signature = req.body.signature;
+interface parsed {
+  parsed: {
+    info: {
+      destination: string;
+      lamports: string;
+      source: string;
+    };
+  };
+}
+
+export async function checkTransfer(req: Request, res: Response) {
+  const signature: string = req.body.signature;
 
   if (!signature) {
     return res.status(400).json({
@@ -74,6 +98,7 @@ export async function checkTransfer(req, res) {
       });
     }
 
+    //what will be the type here ??
     const tx = await connection.getParsedTransaction(signature, {
       maxSupportedTransactionVersion: 0, //Solana has 2 forms of transactions -- legacy and version 0, nwo the thing is ki version 0
       //gives you ALT(Address Lookup Table) mtlb insted of storing 32 bytes of a account, they store only 1 byte i.e, good indexing of DB
@@ -86,13 +111,14 @@ export async function checkTransfer(req, res) {
         .json({ error: "Transaction not found or not confirmed yet" });
     }
 
-    let transferFound = false;
-    let sender = null;
-    let amountLamports = 0;
-    let destination, source, lamports;
+    let transferFound: boolean = false;
+    let sender: string | null = null; //if the source is correct then string, else null
+    let amountLamports: number = 0;
+    let destination: string, source!: string, lamports: number; //trust me TS, I will assign the value to source then only use it
 
     for (let i = 0; i < tx.transaction.message.instructions.length; i++) {
       let instruction = tx.transaction.message.instructions[i];
+      // console.log("Logging instructions one by one: ",instruction);
       if (
         instruction.programId.toString() ===
           "11111111111111111111111111111111" && // SystemProgram
@@ -118,10 +144,11 @@ export async function checkTransfer(req, res) {
       });
     }
 
-    const amountSol = amountLamports / LAMPORTS_PER_SOL;
+    const amountSol: number = amountLamports / LAMPORTS_PER_SOL;
 
     try {
-      const response = await prisma.user.create({
+      //transfer entry created in db
+      await prisma.user.create({
         data: {
           amount: amountSol, //cannot increment if not updating -- also SOL will be stored in the Database
           walletAddress: source,
@@ -129,13 +156,15 @@ export async function checkTransfer(req, res) {
         },
       });
 
+      //txns extracted to get cal total balance
       const allTxns = await prisma.user.findMany({
         where: {
           walletAddress: source,
         },
       });
 
-      let totalBalance = 0;
+      //finding the total balance of the user after the trasfer is successfull and then returning it to the user
+      let totalBalance: number = 0;
       for (let i = 0; i < allTxns.length; i++) {
         totalBalance += allTxns[i].amount;
       }
@@ -162,16 +191,37 @@ export async function checkTransfer(req, res) {
 // 744015 -- Contest 3 id
 // https://vjudge.net/contest/744877
 //I can even get the live scores but then I need to hit the vjudge service again and again in some time and send the data to the client too again and againa i.e, WebSockets will be used
+
+interface vJudge {
+  id: number;
+  title: string;
+  begin: number;
+  length: number;
+  isReplay: boolean;
+  participants: {
+    [key: string]: [];
+  };
+  submissions: [][]; //array of arrays
+}
+
+interface Rank {
+  name: string;
+  penalty: number;
+  score: number;
+  rankId: number;
+  odds: string
+}
+
 export async function vJudge() {
   try {
-    console.log("before sending req");
-    const response = await axios.get(
+    // console.log("before sending req");
+    const response = await axios.get<vJudge>(
       `https://vjudge.net/contest/rank/single/748510`
     );
 
-    console.log("after sending req");
+    // console.log("after sending req");
 
-    let duration = response.data.length; //contest length in UTC
+    let duration: number = response.data.length; //contest length in UTC
     duration = duration / 1000; //duration in seconds
 
     const participants = response.data.participants;
@@ -180,19 +230,23 @@ export async function vJudge() {
     const partiArray = Object.entries(participants); //converts the object into array of arrays -- eacch array contains two index 0 for key and 1 for value
     const submiArray = Object.entries(submissions); //agar key nai hoga toh automatically 1 se dena chalu kar dega
 
-    let rank = [];
+    let rank: Rank[] = [];
 
     partiArray.map((participant) => {
-      const res = submiArray.filter(
-        (submission) => submission[1][0] == participant[0]
-      ); // filtering based on id
+      //res ke paas ek particular participant ke sare submissions ka data hai
+      const res: [string, []][] = submiArray.filter((submission) => {
+        if (submission.length > 0) {
+          submission[1][0] == participant[0];
+        }
+      }); // filtering based on id
       res.sort((a, b) => a[1][3] - b[1][3]); //Sorting will be based on time and not on the order how questions were attempted as people can attempt questions howeever they want, but they cannot fool time
 
-      let questions = [];
+      let questions: [] = [];
       let score = 0;
       let time = 0;
 
       res.map((data) => {
+        // if(data.length > 0){
         if (data[1][2] == 0 && data[1][3] <= duration) {
           let count = 0;
           for (let i = 0; i < res.length; i++) {
@@ -219,6 +273,7 @@ export async function vJudge() {
             score++;
           }
         }
+        // }
       });
       if (time != 0) {
         rank.push({
@@ -245,19 +300,19 @@ export async function vJudge() {
     return rank;
   } catch (e) {
     console.log(e);
-    return 1;
+    return [];
   }
 }
 
 //todo -- Put the  multiplier in the participant table, that will be initial multi then I can change the multi according to the bets placed on a single player
-export async function odds(req, res) {
-  console.log("Inside the odds function");
+export async function odds(req: Request, res: Response) {
+  // console.log("Inside the odds function");
 
-  let odds = 1;
-  const ranks = await vJudge();
+  let odds: number = 1;
+  const ranks: Rank[]  = await vJudge();
   ranks.map((rank) => {
     odds += 0.1;
-    const odd = odds.toFixed(2);
+    const odd: string = odds.toFixed(2);
     rank.odds = odd;
   });
 
@@ -268,17 +323,18 @@ export async function odds(req, res) {
 }
 
 
-
-export async function testAPI(req, res){
+//remove this bhai
+export async function testAPI(req: Request, res: Response) {
   console.log("Inside the testAPI");
 
-const ress = await axios.get("https://jsonplaceholder.typicode.com/todos/1")
+  const ress = await axios.get("https://jsonplaceholder.typicode.com/todos/1");
   const data = ress.data;
   console.log(data);
   return res.json({
-    data: data
-});
+    data: data,
+  });
 }
+
 // More code
 // async function bets(house){
 //     const k = 1 + house*0.01;

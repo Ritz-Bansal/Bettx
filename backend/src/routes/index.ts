@@ -1,6 +1,6 @@
 import express from "express";
-import { userRoutes } from "./user.js";
-import { betRoutes } from "./bet.js";
+import { userRoutes } from "./user";
+import { betRoutes } from "./bet";
 
 export const allRoutes = express.Router();
 

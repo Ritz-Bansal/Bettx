@@ -1,6 +1,6 @@
 import express from "express";
-import { allRoutes } from "./routes/index.js";
-import cors from "cors";
+import { allRoutes } from "./routes/index";
+import cors from "cors"
 import { configDotenv } from "dotenv";
 
 configDotenv();
@@ -8,7 +8,7 @@ configDotenv();
 const app = express();
 const port = process.env.PORT;
 
-console.log("Inside the main index.js")
+console.log("Inside the main index.js");
 
 app.use(express.json());
 const allowedOrigins = [
@@ -16,10 +16,12 @@ const allowedOrigins = [
   "https://bettx-pied.vercel.app/", // for deployed frontend
 ];
 
-app.use(cors({
-  origin: allowedOrigins,
-  credentials: true
-}));
+app.use(
+  cors({
+    origin: allowedOrigins,
+    credentials: true,
+  })
+);
 
 app.use(allRoutes);
 

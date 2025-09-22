@@ -1,17 +1,24 @@
-import { all } from "axios";
-import { prisma } from "../database/db.js";
-import { betInputs } from "../zod/inputs.js";
-import { vJudge } from "./user.js";
-import { odds } from "./user.js";
+import { Request, Response } from "express";
+import { prisma } from "../database/db";
+import { betInputs } from "../zod/inputs";
+import { vJudge } from "./user";
+
 
 //todo -- search button banano kuiki UI/UX designer chutiya hai
 //todo -- the user must get all his total balance as soon as they logs in their wallet
 //todo -- Test if after migration this works correctly or not
 
+interface betInterface {
+  walletAdd: string;
+  VJudgeUserId: string;
+  stake: number;
+  multiplier: number;
+}
+
 
 //I think I should validate the multiplier also in the BE as people can fuck me with FE sending me multiplier very very easily
-export async function bet(req, res) {
-  const walletAdd = req.body.walletAdd; //source wallet Addr i.e, jo bet karra hai
+export async function bet(req: Request<{}, {}, betInterface>, res: Response) {
+  const walletAdd= req.body.walletAdd; //source wallet Addr i.e, jo bet karra hai
   const VJudgeUserId = req.body.VJudgeUserId;
   const stake = req.body.stake;
   let multiplier = req.body.multiplier; //TODO remove it
@@ -24,17 +31,18 @@ export async function bet(req, res) {
     const odd = odds.toFixed(2);
     rank.odds = odd;
   });
+  
   // console.log("Ranks using the odd function inside bet to get the multiplier: ", ranks)
   ranks.map((data) => {
     if(data.name == VJudgeUserId){
-      multiplier = data.odds; 
+      multiplier = parseFloat(data.odds); 
       // console.log("Inside the if condition i.e, confirming the multiplier: ", multiplier);
     }
   })
 
 
   // console.log("Chekcing if the value of the multiplier is updated or not: ", multiplier);
-  multiplier = parseFloat(multiplier);
+  // multiplier = parseFloat(multiplier);
   const InputsResponse = betInputs.safeParse({
     amount: stake,
     multiplier: multiplier,
@@ -54,8 +62,9 @@ export async function bet(req, res) {
         },
       });
 
-      let totalBalance = 0;
-      let totalBetAmount = 0;
+      let totalBalance: number = 0;
+      let totalBetAmount: number = 0;
+
       for (let i = 0; i < allTxns.length; i++) {
         totalBalance += allTxns[i].amount;
       }
@@ -64,7 +73,7 @@ export async function bet(req, res) {
         totalBetAmount += allBets[i].stake;
       }
 
-      let remainingBal = totalBalance - totalBetAmount;
+      let remainingBal: number = totalBalance - totalBetAmount;
 
       // console.log("Balance: ", totalBalance);
       // console.log("Total Bet Amount: ", totalBetAmount);
@@ -107,20 +116,27 @@ export async function bet(req, res) {
   }
 }
 
+interface PaymentInterface {
+  pay: string;
+  walletAdd: string;
+  name: string;
+}
+
 //contest Id deni padegi of the current contest --> correct aara hai bhai
-export async function payment(req, res) {
-  let payment = [];
+export async function payment(req: Request, res: Response) {
+  
+  let payment: PaymentInterface[] = [];
   const ranks = await vJudge();
   // console.log(ranks);
   // console.log("ranks of 0th index", ranks[0]);
 
   const allBets = await prisma.bet.findMany({});
-  let totalMonetToPay = 0;
+  let totalMonetToPay: number = 0;
   // let totalMoneyStakedByRithvik = 0;
 
   // Only rank1, rank2 and rank3 ko payment jayegi bro
   for (let i = 0; i < 3; i++) {
-    const participantName = ranks[i].name;
+    const participantName: string = ranks[i].name;
     // I cannot put toFixed(2) as this is SOL, people will put in decimal only --< this has 13 decimals and Solana hai 9 so life is good
     allBets.map((data) => {
       // const money = data.stake
@@ -129,6 +145,7 @@ export async function payment(req, res) {
         const pay = data.stake * data.multiplier;        
         // console.log("Money before adding in the total Money pot: ", pay.toFixed(2));
         totalMonetToPay += pay;
+
         payment.push({
           pay: `$${pay}`,
           walletAdd: data.walletAddress,
@@ -151,7 +168,8 @@ export async function payment(req, res) {
 //amount in SOL --> total amout betted in SOL -- correct hai yeh 
 async function trial(){
   const allbets = await prisma.bet.findMany({})
-  let SOL = 0;
+  let SOL: number = 0;
+  
   for(let i=0; i<allbets.length; i++){
     SOL += allbets[i].stake;
   }

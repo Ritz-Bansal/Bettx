@@ -1,5 +1,5 @@
 import express from "express";
-import { checkBalance, checkTransfer, odds, testAPI } from "../controllers/user.js";
+import { checkBalance, checkTransfer, odds, testAPI } from "../controllers/user";
 // import { authMiddleware } from "../middlewares/auth.js";
 
 export const userRoutes = express.Router();

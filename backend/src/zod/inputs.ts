@@ -21,3 +21,4 @@ export const betInputs = zod.object({
     multiplier: zod.float32()
 })
 
+
