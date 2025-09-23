@@ -3,23 +3,33 @@ import axios from "axios";
 // import { configDotenv } from "dotenv";
 
 // configDotenv();
-const URL = import.meta.env.VITE_BACKEND_URL;
+const URL: string = import.meta.env.VITE_BACKEND_URL;
 // console.log("URL is: ", URL);
 
+interface Rank {
+  name: string;
+  penalty: number;
+  score: number;
+  rankId: number;
+  odds: number;
+}
+
+interface AxiosResponseInterface{
+  ranks: Rank[]
+}
+
 export const useParticipants = () => {
-  const [participants, setParticipants] = useState([]);
+  const [participants, setParticipants] = useState<Rank[]>([]);
 
   // ✅ Fetch participants from backend
   useEffect(() => {
     const fetchParticipants = async () => {
       try {
-        const response = await axios.get(`${URL}/user/data`);
+        const response = await axios.get<AxiosResponseInterface>(`${URL}/user/data`);
         // console.log("Participants response:", response.data);
 
         if (response.data.ranks) {
           setParticipants(response.data.ranks);
-        } else if (response.data.dumped) {
-          setParticipants(response.data.dumped);
         } else {
           setParticipants([]);
         }

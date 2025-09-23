@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+// import axios from "axios";
 
 import {
   ConnectionProvider,
   WalletProvider,
-  useWallet,
+  // useWallet,
 } from "@solana/wallet-adapter-react";
 
 import { WalletModalProvider } from "@solana/wallet-adapter-react-ui";
@@ -17,20 +17,21 @@ import {
 import { BaseWalletAdapter } from "@solana/wallet-adapter-base";
 import "@solana/wallet-adapter-react-ui/styles.css";
 import "./App.css";
+// import "."
 
 // Import components
-import Navbar from "./components/Navbar";
-import Contests from "./components/Contests";
-import Betting from "./components/Betting";
-import Wallet from "./components/Wallet";
+import Navbar from "./components/Navbar.js";
+import Contests from "./components/Contests.js";
+import Betting from "./components/Betting.js";
+import Wallet from "./components/Wallet.js";
 
 // Import hooks
-import { useWalletBalance } from "./hooks/useWalletBalance";
-import { useParticipants } from "./hooks/useParticipants";
+import { useWalletBalance } from "./hooks/useWalletBalance.js";
+import { useParticipants } from "./hooks/useParticipants.js";
 const URL = import.meta.env.VITE_BACKEND_URL;
 
 function BettingApp() {
-  const [showAddFundsModal, setShowAddFundsModal] = useState(false); //why this state
+  const [showAddFundsModal, setShowAddFundsModal] = useState<boolean>(false); //why this state
   const { balance, refreshSiteBalance, betHistory } = useWalletBalance();
   const participants = useParticipants();
   // const [betHistory, setBetHistory] = useState([]); 
@@ -69,7 +70,7 @@ function BettingApp() {
       {/* Wallet Component with Modal */}
       <Wallet
         balance={balance}
-        setBalance={() => {}} // Not needed since we use the hook
+        // setBalance={() => {}} // Not needed since we use the hook
         refreshSiteBalance={refreshSiteBalance}
         showAddFundsModal={showAddFundsModal}
         setShowAddFundsModal={setShowAddFundsModal}

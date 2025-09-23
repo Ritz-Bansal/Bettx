@@ -3,14 +3,28 @@ import { useWallet } from "@solana/wallet-adapter-react";
 import axios from "axios";
 const URL = import.meta.env.VITE_BACKEND_URL;
 
+interface BetHistoryInterface{
+    id: string;
+    VjudgeUserId: string;
+    stake: number;
+    multiplier: number;
+    walletAddress: string;
+}
+
+interface AxiosResponseInterface{
+  balance: number;
+  bets: BetHistoryInterface[]
+}
+
 export const useWalletBalance = () => {
-  const [balance, setBalance] = useState(null);
-  const [betHistory, setBetHistory] = useState([]); 
+  const [balance, setBalance] = useState<number | null>(null);
+  const [betHistory, setBetHistory] = useState<BetHistoryInterface[]>([]); 
   const wallet = useWallet();
 
   // console.log("Inside UserWalletBalance");
   // ✅ Fetch site balance from backend whenever wallet connects
   //this will make sure to give the balance as soon as the wallet is connected but what about when the user makes more transfer ?
+  
   useEffect(() => {
     const fetchSiteBalance = async () => {
       if (wallet.publicKey) {
@@ -25,7 +39,7 @@ export const useWalletBalance = () => {
 
           // Then get the user's actual balance from database
 
-          const response = await axios.get(`${URL}/user/checkBalance/${wallet.publicKey.toBase58()}`);
+          const response = await axios.get<AxiosResponseInterface>(`${URL}/user/checkBalance/${wallet.publicKey.toBase58()}`);
 
           if (response.data && response.data.balance !== undefined) {
             setBetHistory(response.data.bets);
@@ -55,7 +69,7 @@ export const useWalletBalance = () => {
     } 
     
     try {
-      const response = await axios.get(`${URL}/user/checkBalance/${wallet.publicKey.toBase58()}`);
+      const response = await axios.get<AxiosResponseInterface>(`${URL}/user/checkBalance/${wallet.publicKey.toBase58()}`);
       
       if (response.data && response.data.balance !== undefined) {
         setBalance(response.data.balance);
@@ -73,7 +87,7 @@ export const useWalletBalance = () => {
 };
 
 // Shared SOL formatter: integers -> no decimals, decimals -> up to 4
-export function formatSol(value) {
+export function formatSol(value: any) {
   if (value === null || value === undefined || isNaN(value)) return "--";
   const num = Number(value);
   if (Number.isInteger(num)) return String(num);

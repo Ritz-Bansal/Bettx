@@ -3,13 +3,35 @@ import { useWallet } from "@solana/wallet-adapter-react";
 import axios from "axios";
 // import { formatSol } from "../hooks/useWalletBalance";
 // import { URL } from "../config";
-const URL = import.meta.env.VITE_BACKEND_URL;
+const URL: string = import.meta.env.VITE_BACKEND_URL;
 
-const Betting = ({ participants, refreshSiteBalance }) => {
+interface Rank {
+  name: string;
+  penalty: number;
+  score: number;
+  rankId: number;
+  odds: number;
+}
+
+interface BettingInterface{
+  participants: Rank[]
+  refreshSiteBalance: () => Promise<void>;
+}
+
+interface AxiosResponseInterface{
+  message: string;
+  balance: number;
+}
+
+interface AmountByParticipantInterface{
+  [key: string]: number;
+}
+
+const Betting = ({ participants, refreshSiteBalance }: BettingInterface) => {
   // const [bets, setBets] = useState({}); 
-  const [amountByParticipant, setAmountByParticipant] = useState({});
+  const [amountByParticipant, setAmountByParticipant] = useState<AmountByParticipantInterface>({});
   // const [betHistory, setBetHistory] = useState([]); 
-  const [startTime] = useState(Date.now());
+  // const [startTime] = useState(Date.now());
   const [showInsufficientBalance, setShowInsufficientBalance] = useState(false);
 
   const wallet = useWallet();
@@ -18,7 +40,7 @@ const Betting = ({ participants, refreshSiteBalance }) => {
   // console.log("Participants in Betting component:", participants);
   // const quickAmounts = [10, 20, 30, 40, 50]; // commented out as requested
 
-  const placeBet = async (participantId, amount) => {
+  const placeBet = async (participantId: number, amount :string) => {
     const numericAmount = parseFloat(amount);
     if (!numericAmount || numericAmount < 0.05) { 
       setShowInsufficientBalance(true);
@@ -28,13 +50,14 @@ const Betting = ({ participants, refreshSiteBalance }) => {
     if (!wallet.publicKey) return alert("Please connect your wallet!");
 
     try {
-      const participant = participants.find(p => p.rankId === participantId)
-     
-      const betResponse = await axios.post(`${URL}/bet/bet`, {
+      //participant can be undefined as find returns the value of the first element in the provided array that satisfies the provided testing function. If no element satisfies the function, it returns undefined.
+      const participant = participants.find((p) => p.rankId === participantId);
+
+      const betResponse = await axios.post<AxiosResponseInterface>(`${URL}/bet/bet`, {
         walletAdd: wallet.publicKey.toBase58(),
-        VJudgeUserId: participant.name,
+        VJudgeUserId: participant?.name,
         stake: numericAmount,
-        multiplier: parseFloat(participant.odds) || 1.0
+        multiplier: participant?.odds || 1.0,
       });
 
       if (betResponse.data.message === "Bet successfully placed") {
@@ -42,10 +65,10 @@ const Betting = ({ participants, refreshSiteBalance }) => {
         // const secondsElapsed = Math.floor((Date.now() - startTime) / 1000);
         // const betTime = `${secondsElapsed}s`;
         // const betWithTime = { amount: numericAmount, time: betTime };
-        
+
         // yeh galat hai bhai --? refresh karke aaya toh bhi dikhna chaiyeh
         // setBets((prev) => ({ ...prev, [participantId]: [...(prev[participantId] || []), betWithTime] }));
-        
+
         // Add to bet history
         // const newBet = {
         //   id: Date.now() + Math.random(),
@@ -59,18 +82,14 @@ const Betting = ({ participants, refreshSiteBalance }) => {
         // //this is in memory -- as the player visits after a while -- it will not show the bets he has placed
         // setBetHistory(prev => [newBet, ...prev]);
         // console.log("Setting the betHistory inside the betting component: ", setBetHistory);
-        
-        await refreshSiteBalance(); 
+
+        await refreshSiteBalance();
       } else {
         alert(betResponse.data.message || "Bet failed");
       }
-    } catch (err) {
+    } catch (err: unknown) {
       // console.error("Bet error:", err);
-      if (err.response?.data?.message) {
-        alert(err.response.data.message);
-      } else {
-        alert("Bet failed: " + err.message);
-      }
+      alert(err);
     }
   };
 
@@ -94,7 +113,7 @@ const Betting = ({ participants, refreshSiteBalance }) => {
                     borderRadius: "4px",
                     border: "1px solid rgba(0,255,65,0.3)"
                   }}>
-                    {parseFloat(p.odds || 1.0).toFixed(2)}x
+                    {(p.odds || 1.0).toFixed(2)}x
                   </span>
                   
                   {/* Input with base 0.05 SOL and min 0.05 */}
@@ -135,8 +154,8 @@ const Betting = ({ participants, refreshSiteBalance }) => {
                     onClick={() => {
                       const entered = amountByParticipant[p.rankId];
                       // console.log("Value of Entered: ", entered);
-                      const amountToBet = entered === undefined || entered === "" ? 0 : parseFloat(entered);
-                      placeBet(p.rankId, amountToBet);
+                      const amountToBet = entered === undefined || entered.toString() === "" ? 0 : (entered);
+                      placeBet(p.rankId, amountToBet.toString());
                     }}
                   >
                     Bet in SOL

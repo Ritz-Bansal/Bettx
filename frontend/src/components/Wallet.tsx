@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
-import "../index.css"
+// import "../index"
 import {
   LAMPORTS_PER_SOL,
   PublicKey,
@@ -10,12 +10,26 @@ import {
 import axios from "axios";
 const URL = import.meta.env.VITE_BACKEND_URL;
 
+interface WalletInterface {
+  balance: number | null;
+  refreshSiteBalance: () => Promise<void>;
+  showAddFundsModal: boolean;
+  setShowAddFundsModal: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+interface AxiosResposneInterface{
+  message: string;
+  balance: number;
+  amount: number;
+}
+
 const Wallet = ({
   balance,  
   refreshSiteBalance,
   showAddFundsModal, // true or false
   setShowAddFundsModal, //can set it true or false
-}) => {
+}: WalletInterface) => {
+
   const [fundAmount, setFundAmount] = useState("");
   const [fundSuccessMessage, setFundSuccessMessage] = useState("");
   const [loader, setLoader] = useState(false);
@@ -48,7 +62,7 @@ const Wallet = ({
       );
 
       // console.log("🔍 Sending transaction...");
-      const signature = await wallet.sendTransaction(transaction, connection); //what is this doing ? -- getting the signature of the transaction
+      const signature: string = await wallet.sendTransaction(transaction, connection); //what is this doing ? -- getting the signature of the transaction
       // console.log("🔍 Transaction sent, signature:", signature);
 
       // console.log("🔍 Confirming transaction...");
@@ -60,7 +74,7 @@ const Wallet = ({
 
       try {
         // console.log("🔍 Verifying with backend...");
-        const verifyResponse = await axios.post(`${URL}/user/checkTransfer`, {
+        const verifyResponse = await axios.post<AxiosResposneInterface>(`${URL}/user/checkTransfer`, {
           signature: signature,
           // walletAddress: wallet.publicKey.toBase58(),
         });
@@ -92,9 +106,9 @@ const Wallet = ({
       }
 
       setFundAmount("");
-    } catch (err) {
+    } catch (err: unknown) {
       // console.error("❌ Transaction failed:", err);
-      alert("❌ Transaction failed: " + err.message);
+      alert("❌ Transaction failed: " + err);
       setLoader(false);
     }
   };

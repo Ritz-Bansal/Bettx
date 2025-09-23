@@ -1,7 +1,11 @@
-import React from "react";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 
-const Navbar = ({ onAddFunds, participantsCount }) => {
+interface NavbarInterface{
+  onAddFunds: () => void;
+  participantsCount: number;
+}
+
+const Navbar = ({ onAddFunds, participantsCount }: NavbarInterface) => {
   return (
     <nav className="navbar" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
       <div className="logo" style={{ display: "flex", alignItems: "center", gap: "10px" }}>
