@@ -15,7 +15,7 @@ type secrets = string | undefined;
 
 //Isko Theek karo
 const SOLANA_DEVNET_URL: string = process.env.SOLANA_DEVNET_URL || " ";
-const WALLET_ADDRESS: secrets = process.env.WALLET_ADDRESS;
+const WALLET_ADDRESS: string = process.env.WALLET_ADDRESS || " ";
 const connection = new Connection(SOLANA_DEVNET_URL, "confirmed");
 // const walletAddress = new PublicKey(WALLET_ADDRESS);
 
@@ -64,15 +64,21 @@ export async function checkBalance(req: Request<UseParams>, res: Response) {
   });
 }
 
-interface parsed {
+interface ParsedInterface {
   parsed: {
     info: {
       destination: string;
-      lamports: string;
+      lamports: number;
       source: string;
     };
+    type: string;
   };
+  programId: PublicKey;
 }
+
+// type ParsedInnerInstruction = {
+//   instructions: (ParsedInstruction | PartiallyDecodedInstruction)[];
+// };
 
 export async function checkTransfer(req: Request, res: Response) {
   const signature: string = req.body.signature;
@@ -117,7 +123,7 @@ export async function checkTransfer(req: Request, res: Response) {
     let destination: string, source!: string, lamports: number; //trust me TS, I will assign the value to source then only use it
 
     for (let i = 0; i < tx.transaction.message.instructions.length; i++) {
-      let instruction = tx.transaction.message.instructions[i];
+      let instruction: ParsedInterface = tx.transaction.message.instructions[i];
       // console.log("Logging instructions one by one: ",instruction);
       if (
         instruction.programId.toString() ===
@@ -212,6 +218,10 @@ interface Rank {
   odds: string
 }
 
+interface ParticipantInterface{
+  [key: string]: []
+}
+
 export async function vJudge() {
   try {
     // console.log("before sending req");
@@ -224,24 +234,24 @@ export async function vJudge() {
     let duration: number = response.data.length; //contest length in UTC
     duration = duration / 1000; //duration in seconds
 
-    const participants = response.data.participants;
-    const submissions = response.data.submissions;
+    const participants: ParticipantInterface = response.data.participants;
+    const submissions: [][] = response.data.submissions;
 
-    const partiArray = Object.entries(participants); //converts the object into array of arrays -- eacch array contains two index 0 for key and 1 for value
-    const submiArray = Object.entries(submissions); //agar key nai hoga toh automatically 1 se dena chalu kar dega
+    const partiArray : [string , []][] = Object.entries(participants); //converts the object into array of arrays -- eacch array contains two index 0 for key and 1 for value
+    const submiArray: [string , []][] = Object.entries(submissions); //agar key nai hoga toh automatically 1 se dena chalu kar dega
 
     let rank: Rank[] = [];
 
-    partiArray.map((participant) => {
+    partiArray.map((participant: [string, []]) => {
       //res ke paas ek particular participant ke sare submissions ka data hai
-      const res: [string, []][] = submiArray.filter((submission) => {
-        if (submission.length > 0) {
+      const res: [string, number[]][]  = submiArray.filter((submission: [string, []]) => {
+        if ((submission[1]).length > 0) {
           submission[1][0] == participant[0];
         }
       }); // filtering based on id
       res.sort((a, b) => a[1][3] - b[1][3]); //Sorting will be based on time and not on the order how questions were attempted as people can attempt questions howeever they want, but they cannot fool time
 
-      let questions: [] = [];
+      let questions: number[] = [];
       let score = 0;
       let time = 0;
 
@@ -308,15 +318,15 @@ export async function vJudge() {
 export async function odds(req: Request, res: Response) {
   // console.log("Inside the odds function");
 
-  let odds: number = 1;
+  // let odds: number = 1;
   const ranks: Rank[]  = await vJudge();
-  ranks.map((rank) => {
-    odds += 0.1;
-    const odd: string = odds.toFixed(2);
-    rank.odds = odd;
-  });
+  // ranks.map((rank) => {
+  //   odds += 0.1;
+  //   const odd: string = odds.toFixed(2);
+  //   rank.odds = odd;
+  // });
 
-  console.log(ranks);
+  // console.log(ranks);
   return res.json({
     ranks: ranks,
   });

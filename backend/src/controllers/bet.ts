@@ -117,41 +117,72 @@ export async function bet(req: Request<{}, {}, betInterface>, res: Response) {
 }
 
 interface PaymentInterface {
-  pay: string;
+  // pay: string;
   walletAdd: string;
   name: string;
+}
+
+interface SplitInterface {
+  name: string;
+  MoneySplittedAmongPlayers: number;
+  totalPool: number;
+  payEachWinner: number;
 }
 
 //contest Id deni padegi of the current contest --> correct aara hai bhai
 export async function payment(req: Request, res: Response) {
   
   let payment: PaymentInterface[] = [];
+  let split: SplitInterface[] = [];
   const ranks = await vJudge();
   // console.log(ranks);
   // console.log("ranks of 0th index", ranks[0]);
 
-  const allBets = await prisma.bet.findMany({});
-  let totalMonetToPay: number = 0;
+  //this will find all the bets placed for the contest
+  const allBets = await prisma.bet.findMany();
+  
+  let totaPool: number = 0;
+
+  for(let i = 0; i<allBets.length; i++){
+    totaPool += allBets[i].stake;
+  }
+
+  const totalMonetToPay: number = (90/100)*totaPool; //90% of the total pool, 10% house ka profit
+  const totalMoneyToPayFirst: number = (50/100)*totalMonetToPay;
+  const totalMoneyToPaySecond: number = (30/100)*totalMonetToPay;
+  const totalMoneyToPayThird: number = (20/100)*totalMonetToPay;
+  const MoneyToSplitArray = [totalMoneyToPayFirst, totalMoneyToPaySecond, totalMoneyToPayThird];
   // let totalMoneyStakedByRithvik = 0;
 
-  // Only rank1, rank2 and rank3 ko payment jayegi bro
+  // Only rank1, rank2 and rank3 ko payment jayegi bro --> not this 
+  // of the total amount, remove 10% and split the remaining to 1st, 2nd and 3rd
+
   for (let i = 0; i < 3; i++) {
+    let playerToSplitAcross: number = 0;
     const participantName: string = ranks[i].name;
     // I cannot put toFixed(2) as this is SOL, people will put in decimal only --< this has 13 decimals and Solana hai 9 so life is good
     allBets.map((data) => {
       // const money = data.stake
       // totalMoneyStakedByRithvik += money;
       if (data.VjudgeUserId == participantName) {
-        const pay = data.stake * data.multiplier;        
+        // const pay = data.stake * data.multiplier;        
         // console.log("Money before adding in the total Money pot: ", pay.toFixed(2));
-        totalMonetToPay += pay;
+        // totalMonetToPay += pay;
+        playerToSplitAcross++;
 
         payment.push({
-          pay: `$${pay}`,
+          // pay: `$${pay}`,
           walletAdd: data.walletAddress,
           name: data.VjudgeUserId, // Rakho mat rakho no farak bro
         });
       }
+
+      split.push({
+        name: participantName,
+        totalPool: MoneyToSplitArray[i],
+        MoneySplittedAmongPlayers: playerToSplitAcross,
+        payEachWinner: MoneyToSplitArray[i] / playerToSplitAcross,
+      });
     });
   }
   console.log("Logs inside the payment function inside the bet controller");
@@ -161,6 +192,7 @@ export async function payment(req: Request, res: Response) {
   res.json({
     dump: payment,
     totalMonetToPay: totalMonetToPay*239,
+    split: split
     // totalMoneyStakedByRithvik: totalMoneyStakedByRithvik*239
   });
 }
