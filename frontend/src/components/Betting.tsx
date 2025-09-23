@@ -42,6 +42,7 @@ const Betting = ({ participants, refreshSiteBalance }: BettingInterface) => {
 
   const placeBet = async (participantId: number, amount :string) => {
     const numericAmount = parseFloat(amount);
+    console.log("Numeric Amount: ", numericAmount);
     if (!numericAmount || numericAmount < 0.05) { 
       setShowInsufficientBalance(true);
       setTimeout(() => setShowInsufficientBalance(false), 3000);
@@ -85,9 +86,11 @@ const Betting = ({ participants, refreshSiteBalance }: BettingInterface) => {
 
         await refreshSiteBalance();
       } else {
+        console.log("Inside Else");
         alert(betResponse.data.message || "Bet failed");
       }
     } catch (err: unknown) {
+      // console.log("Inside catch");
       // console.error("Bet error:", err);
       alert(err);
     }
@@ -125,6 +128,8 @@ const Betting = ({ participants, refreshSiteBalance }: BettingInterface) => {
                     value={amountByParticipant[p.rankId] ?? ""}
                     onChange={(e) => {
                       const v = e.target.value;
+                      console.log("Value of: ",v);
+                      console.log("Amount by Participant: ", amountByParticipant);
                       setAmountByParticipant((prev) => ({ ...prev, [p.rankId]: v }));
                       // type="";
                     }}
@@ -153,8 +158,8 @@ const Betting = ({ participants, refreshSiteBalance }: BettingInterface) => {
                     }}
                     onClick={() => {
                       const entered = amountByParticipant[p.rankId];
-                      // console.log("Value of Entered: ", entered);
-                      const amountToBet = entered === undefined || entered.toString() === "" ? 0 : (entered);
+                      console.log("Value of Entered: ", entered);
+                      const amountToBet = entered || 0;
                       placeBet(p.rankId, amountToBet.toString());
                     }}
                   >

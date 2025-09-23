@@ -18,7 +18,7 @@ export const AmountInputs = zod.object({
 
 export const betInputs = zod.object({
     amount: zod.number().min(0.05),
-    multiplier: zod.float32()
+    // multiplier: zod.float32()
 })
 
 

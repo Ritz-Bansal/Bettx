@@ -20,6 +20,9 @@ function bet(req, res) {
         const walletAdd = req.body.walletAdd; //source wallet Addr i.e, jo bet karra hai
         const VJudgeUserId = req.body.VJudgeUserId;
         const stake = req.body.stake;
+        // console.log("WalletAddress: ", walletAdd);
+        // console.log("VJudgeUserId: ", VJudgeUserId);
+        // console.log("Stake: ", stake);
         // let multiplier = req.body.multiplier; //TODO remove it
         // const ranks = await odds();
         // let odds = 1;
