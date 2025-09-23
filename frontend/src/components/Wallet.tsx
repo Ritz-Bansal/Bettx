@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
-// import "../index"
+
 import {
   LAMPORTS_PER_SOL,
   PublicKey,

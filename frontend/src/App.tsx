@@ -14,10 +14,24 @@ import {
   SolflareWalletAdapter,
 } from "@solana/wallet-adapter-wallets";
 
-import { BaseWalletAdapter } from "@solana/wallet-adapter-base";
+// import { BaseWalletAdapter } from "@solana/wallet-adapter-base";
+import {
+  BaseWalletAdapter,
+  // WalletName,
+  WalletReadyState,
+} from "@solana/wallet-adapter-base";
+import type {
+  Transaction,
+  VersionedTransaction,
+  PublicKey,
+  TransactionSignature,
+  Connection,
+  SendOptions,
+} from "@solana/web3.js";
 import "@solana/wallet-adapter-react-ui/styles.css";
-import "./App.css";
-// import "."
+// import "./App.css";
+// import "./index.module.css"
+import "./index.css";
 
 // Import components
 import Navbar from "./components/Navbar.js";
@@ -34,7 +48,7 @@ function BettingApp() {
   const [showAddFundsModal, setShowAddFundsModal] = useState<boolean>(false); //why this state
   const { balance, refreshSiteBalance, betHistory } = useWalletBalance();
   const participants = useParticipants();
-  // const [betHistory, setBetHistory] = useState([]); 
+  // const [betHistory, setBetHistory] = useState([]);
   // const wallet = useWallet();
 
   // Debug: Log participants
@@ -98,44 +112,140 @@ function BettingApp() {
 }
 
 // ✅ Custom Backpack Wallet Adapter
-class BackpackWalletAdapter extends BaseWalletAdapter {
-  constructor() {
-    super();
-    this.name = "Backpack";
-    this.url = "https://backpack.app";
-    this.icon =
-      "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iOCIgZmlsbD0iIzAwMDAwMCIvPgo8cGF0aCBkPSJNOCAxMkgxNlYyMEg4VjEyWiIgZmlsbD0iI0ZGRkZGRiIvPgo8cGF0aCBkPSJNMTYgMTJIMjRWMjBIMTZWMTJaIiBmaWxsPSIjRkZGRkZGIi8+Cjwvc3ZnPgo=";
-  }
+// class BackpackWalletAdapter extends BaseWalletAdapter {
+//   constructor(name: string, url: string, icon: string) {
+//     super(); //bhai this calls the constructor of the BaseWalletAdapter 
+//     this.name = "Backpack";
+//     this.url = "https://backpack.app";
+//     this.icon =
+//       "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iOCIgZmlsbD0iIzAwMDAwMCIvPgo8cGF0aCBkPSJNOCAxMkgxNlYyMEg4VjEyWiIgZmlsbD0iI0ZGRkZGRiIvPgo8cGF0aCBkPSJNMTYgMTJIMjRWMjBIMTZWMTJaIiBmaWxsPSIjRkZGRkZGIi8+Cjwvc3ZnPgo=";
+//   }
 
-  async connect() {
-    if (!window.backpack) {
-      throw new Error("Backpack wallet not found");
+//   async connect() {
+//     if (!window.backpack) {
+//       throw new Error("Backpack wallet not found");
+//     }
+
+//     const response = await window.backpack.connect();
+//     this.emit("connect", response.publicKey);
+//     return response;
+//   }
+
+//   async disconnect() {
+//     if (window.backpack) {
+//       await window.backpack.disconnect();
+//     }
+//     this.emit("disconnect");
+//   }
+
+//   async signTransaction(transaction) {
+//     if (!window.backpack) {
+//       throw new Error("Backpack wallet not found");
+//     }
+//     return await window.backpack.signTransaction(transaction);
+//   }
+
+//   async signAllTransactions(transactions) {
+//     if (!window.backpack) {
+//       throw new Error("Backpack wallet not found");
+//     }
+//     return await window.backpack.signAllTransactions(transactions);
+//   }
+// }
+// export const BackpackWalletName = "Backpack" as WalletName<"Backpack">;
+
+// ✅ Declare injected window provider
+declare global {
+  interface Window {
+    backpack?: {
+      connect: () => Promise<{ publicKey: PublicKey }>;
+      disconnect: () => Promise<void>;
+      signTransaction: <T extends Transaction | VersionedTransaction>(
+        tx: T
+      ) => Promise<T>;
+      signAllTransactions: <T extends Transaction | VersionedTransaction>(
+        txs: T[]
+      ) => Promise<T[]>;
+      sendTransaction?: (
+        tx: Transaction | VersionedTransaction,
+        connection: Connection,
+        options?: SendOptions
+      ) => Promise<TransactionSignature>;
+    };
+  }
+}
+
+export class BackpackWalletAdapter extends BaseWalletAdapter {
+  
+  name: any = "Backpack";
+  url = "https://backpack.app";
+  icon =
+    "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iOCIgZmlsbD0iIzAwMDAwMCIvPgo8cGF0aCBkPSJNOCAxMkgxNlYyMEg4VjEyWiIgZmlsbD0iI0ZGRkZGRiIvPgo8cGF0aCBkPSJNMTYgMTJIMjRWMjBIMTZWMTJaIiBmaWxsPSIjRkZGRkZGIi8+Cjwvc3ZnPgo=";
+
+  // Required fields
+  readyState: WalletReadyState =
+    typeof window !== "undefined" && window.backpack
+      ? WalletReadyState.Installed
+      : WalletReadyState.NotDetected;
+
+  publicKey: PublicKey | null = null;
+  connecting = false;
+  supportedTransactionVersions: ReadonlySet<"legacy" | 0> | null = new Set([
+    "legacy",
+    0,
+  ]);
+
+  async connect(): Promise<void> {
+    if (!window.backpack) throw new Error("Backpack wallet not found");
+
+    this.connecting = true;
+    try {
+      const { publicKey } = await window.backpack.connect();
+      this.publicKey = publicKey;
+      (this as any).emit("connect", publicKey);
+    } finally {
+      this.connecting = false;
     }
-
-    const response = await window.backpack.connect();
-    this.emit("connect", response.publicKey);
-    return response;
   }
 
-  async disconnect() {
+  async disconnect(): Promise<void> {
     if (window.backpack) {
       await window.backpack.disconnect();
     }
-    this.emit("disconnect");
+    this.publicKey = null;
+    (this as any).emit("disconnect");
   }
 
-  async signTransaction(transaction) {
-    if (!window.backpack) {
-      throw new Error("Backpack wallet not found");
-    }
-    return await window.backpack.signTransaction(transaction);
+  async signTransaction<T extends Transaction | VersionedTransaction>(
+    tx: T
+  ): Promise<T> {
+    if (!window.backpack) throw new Error("Backpack wallet not found");
+    return await window.backpack.signTransaction(tx);
   }
 
-  async signAllTransactions(transactions) {
-    if (!window.backpack) {
-      throw new Error("Backpack wallet not found");
+  async signAllTransactions<T extends Transaction | VersionedTransaction>(
+    txs: T[]
+  ): Promise<T[]> {
+    if (!window.backpack) throw new Error("Backpack wallet not found");
+    return await window.backpack.signAllTransactions(txs);
+  }
+
+  async sendTransaction<T extends Transaction | VersionedTransaction>(
+    tx: T,
+    connection: Connection,
+    options?: SendOptions
+  ): Promise<TransactionSignature> {
+    if (window.backpack?.sendTransaction) {
+      // ✅ If wallet provides sendTransaction, delegate
+      return await window.backpack.sendTransaction(tx, connection, options);
     }
-    return await window.backpack.signAllTransactions(transactions);
+
+    // ✅ Fallback: sign + send manually
+    const signedTx = await this.signTransaction(tx);
+    return await (connection as any).sendTransaction(
+      signedTx as Transaction,
+      options ? { skipPreflight: options.skipPreflight } : {}
+    );
   }
 }
 

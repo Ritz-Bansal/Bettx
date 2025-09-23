@@ -4,6 +4,7 @@
     // File Layout
     "rootDir": "./src",
     "outDir": "./dist",
+    "plugins": [{ "name": "typescript-plugin-css-modules" }], //not working
 
     // Environment Settings
     // See also https://aka.ms/tsconfig/module
@@ -42,5 +43,5 @@
     "moduleDetection": "force",
     "skipLibCheck": true,
   },
-  "include": ["src/**/*"]
+  "include": ["src/**/*"] //not working
 }
