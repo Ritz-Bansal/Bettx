@@ -223,9 +223,9 @@ interface ParticipantInterface{
 }
 
 export async function vJudge() {
-  console.log("Inside VJudge function");
+  // console.log("Inside VJudge function");
   try {
-    console.log("before sending req");
+    // console.log("before sending req");
     const response = await axios.get<vJudge>(
       `https://vjudge.net/contest/rank/single/748510`
     );
@@ -315,7 +315,7 @@ export async function vJudge() {
       id++;
     });
 
-    console.log(rank);
+    // console.log(rank);
     return rank;
   } catch (e) {
     console.log(e);

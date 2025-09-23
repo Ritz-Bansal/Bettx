@@ -266,7 +266,7 @@ function odds(req, res) {
         //   const odd: string = odds.toFixed(2);
         //   rank.odds = odd;
         // });
-        console.log(ranks);
+        // console.log(ranks);
         return res.json({
             ranks: ranks,
         });
