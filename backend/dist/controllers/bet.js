@@ -20,27 +20,27 @@ function bet(req, res) {
         const walletAdd = req.body.walletAdd; //source wallet Addr i.e, jo bet karra hai
         const VJudgeUserId = req.body.VJudgeUserId;
         const stake = req.body.stake;
-        let multiplier = req.body.multiplier; //TODO remove it
+        // let multiplier = req.body.multiplier; //TODO remove it
         // const ranks = await odds();
-        let odds = 1;
-        const ranks = yield (0, user_1.vJudge)();
-        ranks.map((rank) => {
-            odds += 0.1;
-            const odd = odds.toFixed(2);
-            rank.odds = odd;
-        });
+        // let odds = 1;
+        // const ranks = await vJudge();
+        // ranks.map((rank) => {
+        //   odds += 0.1;
+        //   const odd = odds.toFixed(2);
+        //   rank.odds = odd;
+        // });
         // console.log("Ranks using the odd function inside bet to get the multiplier: ", ranks)
-        ranks.map((data) => {
-            if (data.name == VJudgeUserId) {
-                multiplier = parseFloat(data.odds);
-                // console.log("Inside the if condition i.e, confirming the multiplier: ", multiplier);
-            }
-        });
+        // ranks.map((data) => {
+        //   if(data.name == VJudgeUserId){
+        //     // multiplier = parseFloat(data.odds); 
+        //     // console.log("Inside the if condition i.e, confirming the multiplier: ", multiplier);
+        //   }
+        // })
         // console.log("Chekcing if the value of the multiplier is updated or not: ", multiplier);
         // multiplier = parseFloat(multiplier);
         const InputsResponse = inputs_1.betInputs.safeParse({
             amount: stake,
-            multiplier: multiplier,
+            // multiplier: multiplier,
         });
         if (InputsResponse.success) {
             try {
@@ -71,7 +71,7 @@ function bet(req, res) {
                         data: {
                             VjudgeUserId: VJudgeUserId,
                             stake: stake,
-                            multiplier: multiplier,
+                            multiplier: 1.0, //remove this bro
                             walletAddress: walletAdd,
                         },
                     });
@@ -108,29 +108,48 @@ function bet(req, res) {
 function payment(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         let payment = [];
+        let split = [];
         const ranks = yield (0, user_1.vJudge)();
         // console.log(ranks);
         // console.log("ranks of 0th index", ranks[0]);
-        const allBets = yield db_1.prisma.bet.findMany({});
-        let totalMonetToPay = 0;
+        //this will find all the bets placed for the contest
+        const allBets = yield db_1.prisma.bet.findMany();
+        let totaPool = 0;
+        for (let i = 0; i < allBets.length; i++) {
+            totaPool += allBets[i].stake;
+        }
+        const totalMonetToPay = (90 / 100) * totaPool; //90% of the total pool, 10% house ka profit
+        const totalMoneyToPayFirst = (50 / 100) * totalMonetToPay;
+        const totalMoneyToPaySecond = (30 / 100) * totalMonetToPay;
+        const totalMoneyToPayThird = (20 / 100) * totalMonetToPay;
+        const MoneyToSplitArray = [totalMoneyToPayFirst, totalMoneyToPaySecond, totalMoneyToPayThird];
         // let totalMoneyStakedByRithvik = 0;
-        // Only rank1, rank2 and rank3 ko payment jayegi bro
+        // Only rank1, rank2 and rank3 ko payment jayegi bro --> not this 
+        // of the total amount, remove 10% and split the remaining to 1st, 2nd and 3rd
         for (let i = 0; i < 3; i++) {
+            let playerToSplitAcross = 0;
             const participantName = ranks[i].name;
             // I cannot put toFixed(2) as this is SOL, people will put in decimal only --< this has 13 decimals and Solana hai 9 so life is good
             allBets.map((data) => {
                 // const money = data.stake
                 // totalMoneyStakedByRithvik += money;
                 if (data.VjudgeUserId == participantName) {
-                    const pay = data.stake * data.multiplier;
+                    // const pay = data.stake * data.multiplier;        
                     // console.log("Money before adding in the total Money pot: ", pay.toFixed(2));
-                    totalMonetToPay += pay;
+                    // totalMonetToPay += pay;
+                    playerToSplitAcross++;
                     payment.push({
-                        pay: `$${pay}`,
+                        // pay: `$${pay}`,
                         walletAdd: data.walletAddress,
                         name: data.VjudgeUserId, // Rakho mat rakho no farak bro
                     });
                 }
+                split.push({
+                    name: participantName,
+                    totalPool: MoneyToSplitArray[i],
+                    MoneySplittedAmongPlayers: playerToSplitAcross,
+                    payEachWinner: MoneyToSplitArray[i] / playerToSplitAcross,
+                });
             });
         }
         console.log("Logs inside the payment function inside the bet controller");
@@ -139,6 +158,7 @@ function payment(req, res) {
         res.json({
             dump: payment,
             totalMonetToPay: totalMonetToPay * 239,
+            split: split
             // totalMoneyStakedByRithvik: totalMoneyStakedByRithvik*239
         });
     });

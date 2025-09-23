@@ -65,7 +65,7 @@ export async function checkBalance(req: Request<UseParams>, res: Response) {
 }
 
 interface ParsedInterface {
-  parsed: {
+  parsed?: {
     info: {
       destination: string;
       lamports: number;
@@ -214,8 +214,8 @@ interface Rank {
   name: string;
   penalty: number;
   score: number;
-  rankId: number;
-  odds: string
+  rankId?: number;
+  odds?: string
 }
 
 interface ParticipantInterface{
@@ -242,11 +242,11 @@ export async function vJudge() {
 
     let rank: Rank[] = [];
 
-    partiArray.map((participant: [string, []]) => {
+    partiArray.map((participant: [string, string[]]) => {
       //res ke paas ek particular participant ke sare submissions ka data hai
-      const res: [string, number[]][]  = submiArray.filter((submission: [string, []]) => {
+      const res: [string, number[]][]  = submiArray.filter((submission: [string, number[]]) => {
         if ((submission[1]).length > 0) {
-          submission[1][0] == participant[0];
+          submission[1][0].toString() == participant[0];
         }
       }); // filtering based on id
       res.sort((a, b) => a[1][3] - b[1][3]); //Sorting will be based on time and not on the order how questions were attempted as people can attempt questions howeever they want, but they cannot fool time

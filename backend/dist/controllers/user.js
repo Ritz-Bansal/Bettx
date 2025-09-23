@@ -26,7 +26,7 @@ const web3_js_1 = require("@solana/web3.js");
 // const JWT_SECRET = process.env.JWT_SECRET;
 //Isko Theek karo
 const SOLANA_DEVNET_URL = process.env.SOLANA_DEVNET_URL || " ";
-const WALLET_ADDRESS = process.env.WALLET_ADDRESS;
+const WALLET_ADDRESS = process.env.WALLET_ADDRESS || " ";
 const connection = new web3_js_1.Connection(SOLANA_DEVNET_URL, "confirmed");
 function checkBalance(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -63,6 +63,9 @@ function checkBalance(req, res) {
         });
     });
 }
+// type ParsedInnerInstruction = {
+//   instructions: (ParsedInstruction | PartiallyDecodedInstruction)[];
+// };
 function checkTransfer(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         const signature = req.body.signature;
@@ -180,8 +183,8 @@ function vJudge() {
             partiArray.map((participant) => {
                 //res ke paas ek particular participant ke sare submissions ka data hai
                 const res = submiArray.filter((submission) => {
-                    if (submission.length > 0) {
-                        submission[1][0] == participant[0];
+                    if ((submission[1]).length > 0) {
+                        submission[1][0].toString() == participant[0];
                     }
                 }); // filtering based on id
                 res.sort((a, b) => a[1][3] - b[1][3]); //Sorting will be based on time and not on the order how questions were attempted as people can attempt questions howeever they want, but they cannot fool time
@@ -249,14 +252,14 @@ function vJudge() {
 function odds(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         // console.log("Inside the odds function");
-        let odds = 1;
+        // let odds: number = 1;
         const ranks = yield vJudge();
-        ranks.map((rank) => {
-            odds += 0.1;
-            const odd = odds.toFixed(2);
-            rank.odds = odd;
-        });
-        console.log(ranks);
+        // ranks.map((rank) => {
+        //   odds += 0.1;
+        //   const odd: string = odds.toFixed(2);
+        //   rank.odds = odd;
+        // });
+        // console.log(ranks);
         return res.json({
             ranks: ranks,
         });

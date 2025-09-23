@@ -12,7 +12,7 @@ interface betInterface {
   walletAdd: string;
   VJudgeUserId: string;
   stake: number;
-  multiplier: number;
+  // multiplier: number;
 }
 
 
@@ -21,31 +21,31 @@ export async function bet(req: Request<{}, {}, betInterface>, res: Response) {
   const walletAdd= req.body.walletAdd; //source wallet Addr i.e, jo bet karra hai
   const VJudgeUserId = req.body.VJudgeUserId;
   const stake = req.body.stake;
-  let multiplier = req.body.multiplier; //TODO remove it
+  // let multiplier = req.body.multiplier; //TODO remove it
 
   // const ranks = await odds();
-  let odds = 1;
-  const ranks = await vJudge();
-  ranks.map((rank) => {
-    odds += 0.1;
-    const odd = odds.toFixed(2);
-    rank.odds = odd;
-  });
+  // let odds = 1;
+  // const ranks = await vJudge();
+  // ranks.map((rank) => {
+  //   odds += 0.1;
+  //   const odd = odds.toFixed(2);
+  //   rank.odds = odd;
+  // });
   
   // console.log("Ranks using the odd function inside bet to get the multiplier: ", ranks)
-  ranks.map((data) => {
-    if(data.name == VJudgeUserId){
-      multiplier = parseFloat(data.odds); 
-      // console.log("Inside the if condition i.e, confirming the multiplier: ", multiplier);
-    }
-  })
+  // ranks.map((data) => {
+  //   if(data.name == VJudgeUserId){
+  //     // multiplier = parseFloat(data.odds); 
+  //     // console.log("Inside the if condition i.e, confirming the multiplier: ", multiplier);
+  //   }
+  // })
 
 
   // console.log("Chekcing if the value of the multiplier is updated or not: ", multiplier);
   // multiplier = parseFloat(multiplier);
   const InputsResponse = betInputs.safeParse({
     amount: stake,
-    multiplier: multiplier,
+    // multiplier: multiplier,
   });
 
   if (InputsResponse.success) {
@@ -84,7 +84,7 @@ export async function bet(req: Request<{}, {}, betInterface>, res: Response) {
           data: {
             VjudgeUserId: VJudgeUserId,
             stake: stake,
-            multiplier: multiplier,
+            multiplier: 1.0, //remove this bro
             walletAddress: walletAdd,
           },
         });
