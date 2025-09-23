@@ -29,9 +29,9 @@ import type {
   SendOptions,
 } from "@solana/web3.js";
 import "@solana/wallet-adapter-react-ui/styles.css";
-// import "./App.css";
+import "./App.css";
 // import "./index.module.css"
-import "./index.css";
+// import "./index.css";
 
 // Import components
 import Navbar from "./components/Navbar.js";

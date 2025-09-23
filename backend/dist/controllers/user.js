@@ -169,9 +169,9 @@ function checkTransfer(req, res) {
 }
 function vJudge() {
     return __awaiter(this, void 0, void 0, function* () {
-        console.log("Inside VJudge function");
+        // console.log("Inside VJudge function");
         try {
-            console.log("before sending req");
+            // console.log("before sending req");
             const response = yield axios_1.default.get(`https://vjudge.net/contest/rank/single/748510`);
             // console.log("after sending req");
             let duration = response.data.length; //contest length in UTC
@@ -244,7 +244,7 @@ function vJudge() {
                 data.rankId = id;
                 id++;
             });
-            console.log(rank);
+            // console.log(rank);
             return rank;
         }
         catch (e) {

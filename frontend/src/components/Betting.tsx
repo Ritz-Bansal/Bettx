@@ -57,7 +57,7 @@ const Betting = ({ participants, refreshSiteBalance }: BettingInterface) => {
         walletAdd: wallet.publicKey.toBase58(),
         VJudgeUserId: participant?.name,
         stake: numericAmount,
-        multiplier: participant?.odds || 1.0,
+        // multiplier: participant?.odds || 1.0,
       });
 
       if (betResponse.data.message === "Bet successfully placed") {
@@ -104,7 +104,7 @@ const Betting = ({ participants, refreshSiteBalance }: BettingInterface) => {
               <div className="betting">
                 <div style={{ display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap" }}>
                   {/* Show multiplier first */}
-                  <span style={{ 
+                  {/* <span style={{ 
                     fontSize: "12px", 
                     color: "#00ff41", 
                     fontWeight: "bold",
@@ -114,7 +114,7 @@ const Betting = ({ participants, refreshSiteBalance }: BettingInterface) => {
                     border: "1px solid rgba(0,255,65,0.3)"
                   }}>
                     {(p.odds || 1.0).toFixed(2)}x
-                  </span>
+                  </span> */}
                   
                   {/* Input with base 0.05 SOL and min 0.05 */}
                   <input
