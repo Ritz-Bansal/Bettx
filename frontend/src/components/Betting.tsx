@@ -85,14 +85,17 @@ const Betting = ({ participants, refreshSiteBalance }: BettingInterface) => {
         // console.log("Setting the betHistory inside the betting component: ", setBetHistory);
 
         await refreshSiteBalance();
+        setAmountByParticipant({});
       } else {
         console.log("Inside Else");
         alert(betResponse.data.message || "Bet failed");
+        setAmountByParticipant({});
       }
     } catch (err: unknown) {
       // console.log("Inside catch");
       // console.error("Bet error:", err);
       alert(err);
+      setAmountByParticipant({});
     }
   };
 
