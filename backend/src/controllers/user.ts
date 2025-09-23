@@ -223,8 +223,9 @@ interface ParticipantInterface{
 }
 
 export async function vJudge() {
+  console.log("Inside VJudge function");
   try {
-    // console.log("before sending req");
+    console.log("before sending req");
     const response = await axios.get<vJudge>(
       `https://vjudge.net/contest/rank/single/748510`
     );
@@ -237,18 +238,23 @@ export async function vJudge() {
     const participants: ParticipantInterface = response.data.participants;
     const submissions: [][] = response.data.submissions;
 
+    // console.log("Participants: ", participants);
+    // console.log(submissions);
+    
+
     const partiArray : [string , []][] = Object.entries(participants); //converts the object into array of arrays -- eacch array contains two index 0 for key and 1 for value
     const submiArray: [string , []][] = Object.entries(submissions); //agar key nai hoga toh automatically 1 se dena chalu kar dega
+
+    // console.log(partiArray);
+    // console.log(submiArray);
 
     let rank: Rank[] = [];
 
     partiArray.map((participant: [string, string[]]) => {
       //res ke paas ek particular participant ke sare submissions ka data hai
-      const res: [string, number[]][]  = submiArray.filter((submission: [string, number[]]) => {
-        if ((submission[1]).length > 0) {
-          submission[1][0].toString() == participant[0];
-        }
-      }); // filtering based on id
+      // console.log(participant);
+      const res: [string, number[]][]  = submiArray.filter((submission: [string, number[]]) =>  submission[1][0].toString() == participant[0].toString() ); // filtering based on id
+      // console.log(res);
       res.sort((a, b) => a[1][3] - b[1][3]); //Sorting will be based on time and not on the order how questions were attempted as people can attempt questions howeever they want, but they cannot fool time
 
       let questions: number[] = [];
@@ -294,6 +300,8 @@ export async function vJudge() {
       }
     });
 
+    // console.log("RANK is: ", rank);
+
     rank.sort((a, b) => {
       if (a.score !== b.score) {
         return b.score - a.score; // descending order bro
@@ -307,13 +315,16 @@ export async function vJudge() {
       id++;
     });
 
+    console.log(rank);
     return rank;
   } catch (e) {
     console.log(e);
+    console.log("Error");
     return [];
   }
 }
 
+// vJudge();
 //todo -- Put the  multiplier in the participant table, that will be initial multi then I can change the multi according to the bets placed on a single player
 export async function odds(req: Request, res: Response) {
   // console.log("Inside the odds function");
