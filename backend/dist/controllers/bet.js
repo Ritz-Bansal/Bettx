@@ -14,36 +14,13 @@ exports.payment = payment;
 const db_1 = require("../database/db");
 const inputs_1 = require("../zod/inputs");
 const user_1 = require("./user");
-//I think I should validate the multiplier also in the BE as people can fuck me with FE sending me multiplier very very easily
 function bet(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
-        const walletAdd = req.body.walletAdd; //source wallet Addr i.e, jo bet karra hai
+        const walletAdd = req.body.walletAdd;
         const VJudgeUserId = req.body.VJudgeUserId;
         const stake = req.body.stake;
-        // console.log("WalletAddress: ", walletAdd);
-        // console.log("VJudgeUserId: ", VJudgeUserId);
-        // console.log("Stake: ", stake);
-        // let multiplier = req.body.multiplier; //TODO remove it
-        // const ranks = await odds();
-        // let odds = 1;
-        // const ranks = await vJudge();
-        // ranks.map((rank) => {
-        //   odds += 0.1;
-        //   const odd = odds.toFixed(2);
-        //   rank.odds = odd;
-        // });
-        // console.log("Ranks using the odd function inside bet to get the multiplier: ", ranks)
-        // ranks.map((data) => {
-        //   if(data.name == VJudgeUserId){
-        //     // multiplier = parseFloat(data.odds); 
-        //     // console.log("Inside the if condition i.e, confirming the multiplier: ", multiplier);
-        //   }
-        // })
-        // console.log("Chekcing if the value of the multiplier is updated or not: ", multiplier);
-        // multiplier = parseFloat(multiplier);
         const InputsResponse = inputs_1.betInputs.safeParse({
             amount: stake,
-            // multiplier: multiplier,
         });
         if (InputsResponse.success) {
             try {
@@ -66,23 +43,19 @@ function bet(req, res) {
                     totalBetAmount += allBets[i].stake;
                 }
                 let remainingBal = totalBalance - totalBetAmount;
-                // console.log("Balance: ", totalBalance);
-                // console.log("Total Bet Amount: ", totalBetAmount);
-                // console.log("Remaining Balance bedore the bet is placed: ", remainingBal);
                 if (remainingBal >= stake) {
                     const response = yield db_1.prisma.bet.create({
                         data: {
                             VjudgeUserId: VJudgeUserId,
                             stake: stake,
-                            multiplier: 1.0, //remove this bro
+                            multiplier: 1.0,
                             walletAddress: walletAdd,
                         },
                     });
                     remainingBal -= stake;
                     return res.json({
                         message: "Bet successfully placed",
-                        balance: remainingBal, // send the remaining balance after the BET is placed,
-                        // stake: stake        // Dicey if bhejna hai ki nai
+                        balance: remainingBal,
                     });
                 }
                 else {
@@ -92,7 +65,6 @@ function bet(req, res) {
                 }
             }
             catch (error) {
-                // console.log(error);
                 return res.json({
                     message: "Error placing bet: ",
                     error,
@@ -100,73 +72,55 @@ function bet(req, res) {
             }
         }
         else {
-            // console.log(InputsResponse.error.issues[0].message);
             return res.json({
                 message: InputsResponse.error.issues[0].message,
             });
         }
     });
 }
-//contest Id deni padegi of the current contest --> correct aara hai bhai
 function payment(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         let payment = [];
         let split = [];
         const ranks = yield (0, user_1.vJudge)();
-        // console.log(ranks);
-        // console.log("ranks of 0th index", ranks[0]);
-        //this will find all the bets placed for the contest
         const allBets = yield db_1.prisma.bet.findMany();
         let totaPool = 0;
         for (let i = 0; i < allBets.length; i++) {
             totaPool += allBets[i].stake;
         }
-        const totalMonetToPay = (90 / 100) * totaPool; //90% of the total pool, 10% house ka profit
+        const totalMonetToPay = (90 / 100) * totaPool;
         const totalMoneyToPayFirst = (50 / 100) * totalMonetToPay;
         const totalMoneyToPaySecond = (30 / 100) * totalMonetToPay;
         const totalMoneyToPayThird = (20 / 100) * totalMonetToPay;
         const MoneyToSplitArray = [totalMoneyToPayFirst, totalMoneyToPaySecond, totalMoneyToPayThird];
-        // let totalMoneyStakedByRithvik = 0;
-        // Only rank1, rank2 and rank3 ko payment jayegi bro --> not this 
-        // of the total amount, remove 10% and split the remaining to 1st, 2nd and 3rd
         for (let i = 0; i < 3; i++) {
             let playerToSplitAcross = 0;
             const participantName = ranks[i].name;
-            // I cannot put toFixed(2) as this is SOL, people will put in decimal only --< this has 13 decimals and Solana hai 9 so life is good
             allBets.map((data) => {
-                // const money = data.stake
-                // totalMoneyStakedByRithvik += money;
                 if (data.VjudgeUserId == participantName) {
-                    // const pay = data.stake * data.multiplier;        
-                    // console.log("Money before adding in the total Money pot: ", pay.toFixed(2));
-                    // totalMonetToPay += pay;
                     playerToSplitAcross++;
                     payment.push({
-                        // pay: `$${pay}`,
                         walletAdd: data.walletAddress,
-                        name: data.VjudgeUserId, // Rakho mat rakho no farak bro
+                        PlayerNameTheyBettedOn: data.VjudgeUserId,
                     });
                 }
-                split.push({
-                    name: participantName,
-                    totalPool: MoneyToSplitArray[i],
-                    MoneySplittedAmongPlayers: playerToSplitAcross,
-                    payEachWinner: MoneyToSplitArray[i] / playerToSplitAcross,
-                });
+            });
+            split.push({
+                name: participantName,
+                totalPoolInSOL: MoneyToSplitArray[i],
+                MoneySplittedAmongPlayers: playerToSplitAcross,
+                payEachWinnerInSOL: MoneyToSplitArray[i] / playerToSplitAcross,
             });
         }
-        console.log("Logs inside the payment function inside the bet controller");
-        console.log("Total money to pay in SOL: ", totalMonetToPay);
-        console.log("Total money to pay in USD: ", totalMonetToPay * 239);
+        const TotalAmountBettedInSOl = yield trial();
         res.json({
+            totoalAmountBettedInSOL: TotalAmountBettedInSOl,
+            totalMonetToPayInSOL: totalMonetToPay,
+            splitInSOL: split,
             dump: payment,
-            totalMonetToPay: totalMonetToPay * 239,
-            split: split
-            // totalMoneyStakedByRithvik: totalMoneyStakedByRithvik*239
         });
     });
 }
-//amount in SOL --> total amout betted in SOL -- correct hai yeh 
 function trial() {
     return __awaiter(this, void 0, void 0, function* () {
         const allbets = yield db_1.prisma.bet.findMany({});
@@ -176,36 +130,6 @@ function trial() {
         }
         console.log("Logs inside the trial function inside the bet controller");
         console.log("Amount betted in SOL: ", SOL);
-        console.log("Amount betted in dollars: ", SOL * 239);
+        return SOL;
     });
 }
-trial();
-//1.21
-//0.24
-//0.845
-//Good for V2, but not for V1
-// export async function addWalletAddress(req,res){
-//     const vJudgeUsername = req.body.vJudgeUsername;
-//     const walletAddressParticipant = req.body.walletAddressParticipant;
-//     try{
-//       const allBets = await prisma.bet.updateMany({
-//         where: {
-//           VjudgeUserId: vJudgeUsername
-//         },
-//         data: {
-//           walletAddressParticipant: walletAddressParticipant
-//         }
-//       })
-//       // allBets.map(bet => {
-//       //   bet.walletAddressParticipant  = walletAddressParticipant
-//       // })
-//       // console.log(allBets[0]);
-//     return res.json({
-//       message: "Wallet Address successfully added"
-//     })
-//     }catch(error){
-//       return res.json({
-//         message: "Error while adding wallet address ", error
-//       })
-//     }
-// }

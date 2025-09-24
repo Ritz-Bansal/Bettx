@@ -1,4 +1,5 @@
 // import { useState } from "react";
+import { useState } from "react";
 import { formatSol } from "../hooks/useWalletBalance.js";
 
 interface BetHistoryInterface {
@@ -16,6 +17,7 @@ interface ContestBetHistoryInterface {
 
 const Contests = (betHistory: ContestBetHistoryInterface) => {
   // const [betHistory, setBetHistory] = useState([]);
+  // const [loading, setLoading] = useState(true);
 
   // const contests = [
   //   { id: 1, title: "Capture the Flag", status: "Upcoming" },
@@ -41,7 +43,7 @@ const Contests = (betHistory: ContestBetHistoryInterface) => {
       </ul> */}
 
       {/* this is Bet History Table */}
-      {betHistory.betHistory.length > 0 && (
+      {betHistory.betHistory.length > 0 &&  (
         <div className="bet-history">
           <h3>Bet History</h3>
           <div className="bet-table">
@@ -61,7 +63,7 @@ const Contests = (betHistory: ContestBetHistoryInterface) => {
             ))}
           </div>
         </div>
-      ) }
+      )}
     </div>
   );
 };

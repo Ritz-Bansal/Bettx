@@ -45,8 +45,9 @@ import { useParticipants } from "./hooks/useParticipants.js";
 const URL = import.meta.env.VITE_BACKEND_URL;
 
 function BettingApp() {
+  // const [laoding2, setLoading2] = useState<boolean>(true);
   const [showAddFundsModal, setShowAddFundsModal] = useState<boolean>(false); //why this state
-  const { balance, refreshSiteBalance, betHistory } = useWalletBalance();
+  const { balance, refreshSiteBalance, betHistory} = useWalletBalance();
   const participants = useParticipants();
   // const [betHistory, setBetHistory] = useState([]);
   // const wallet = useWallet();

@@ -20,7 +20,6 @@ function authMiddleware(req, res, next) {
     return __awaiter(this, void 0, void 0, function* () {
         var _a;
         const headers = ((_a = req.headers.authorization) === null || _a === void 0 ? void 0 : _a.split(" ")) || " ";
-        // console.log(headers);
         const token = headers[1];
         const JWT_SECRET = process.env.JWT_SECRET || " ";
         try {
@@ -29,7 +28,6 @@ function authMiddleware(req, res, next) {
             next();
         }
         catch (error) {
-            // console.log("Error in try block");
         }
     });
 }

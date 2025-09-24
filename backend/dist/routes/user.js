@@ -6,7 +6,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.userRoutes = void 0;
 const express_1 = __importDefault(require("express"));
 const user_1 = require("../controllers/user");
-// import { authMiddleware } from "../middlewares/auth.js";
 exports.userRoutes = express_1.default.Router();
 console.log("Inside User route");
 exports.userRoutes.get("/data", user_1.odds);

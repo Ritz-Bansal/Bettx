@@ -13,8 +13,8 @@ const port = process.env.PORT;
 console.log("Inside the main index.js");
 app.use(express_1.default.json());
 const allowedOrigins = [
-    "http://localhost:5173", // for local frontend
-    "https://bettx-pied.vercel.app/", // for deployed frontend
+    "http://localhost:5173",
+    "https://bettx-pied.vercel.app/",
 ];
 app.use((0, cors_1.default)({
     origin: allowedOrigins,

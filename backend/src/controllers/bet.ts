@@ -123,14 +123,14 @@ export async function bet(req: Request<{}, {}, betInterface>, res: Response) {
 interface PaymentInterface {
   // pay: string;
   walletAdd: string;
-  name: string;
+  PlayerNameTheyBettedOn: string;
 }
 
 interface SplitInterface {
   name: string;
   MoneySplittedAmongPlayers: number;
-  totalPool: number;
-  payEachWinner: number;
+  totalPoolInSOL: number;
+  payEachWinnerInSOL: number;
 }
 
 //contest Id deni padegi of the current contest --> correct aara hai bhai
@@ -177,32 +177,35 @@ export async function payment(req: Request, res: Response) {
         payment.push({
           // pay: `$${pay}`,
           walletAdd: data.walletAddress,
-          name: data.VjudgeUserId, // Rakho mat rakho no farak bro
+          PlayerNameTheyBettedOn: data.VjudgeUserId, // Rakho mat rakho no farak bro
         });
       }
-
-      split.push({
-        name: participantName,
-        totalPool: MoneyToSplitArray[i],
-        MoneySplittedAmongPlayers: playerToSplitAcross,
-        payEachWinner: MoneyToSplitArray[i] / playerToSplitAcross,
-      });
     });
+    split.push({
+      name: participantName,
+      totalPoolInSOL: MoneyToSplitArray[i],
+      MoneySplittedAmongPlayers: playerToSplitAcross,
+      payEachWinnerInSOL: MoneyToSplitArray[i] / playerToSplitAcross,
+    });
+
   }
-  console.log("Logs inside the payment function inside the bet controller");
-  console.log("Total money to pay in SOL: ",totalMonetToPay);
-  console.log("Total money to pay in USD: ", totalMonetToPay*239);
+
+  const TotalAmountBettedInSOl = await trial();
+  // console.log("Logs inside the payment function inside the bet controller");
+  // console.log("Total money to pay in SOL: ",totalMonetToPay);
+  // console.log("Total money to pay in USD: ", totalMonetToPay*239);
 
   res.json({
+    totoalAmountBettedInSOL: TotalAmountBettedInSOl,
+    totalMonetToPayInSOL: totalMonetToPay,
+    splitInSOL: split,
     dump: payment,
-    totalMonetToPay: totalMonetToPay*239,
-    split: split
     // totalMoneyStakedByRithvik: totalMoneyStakedByRithvik*239
   });
 }
 
 //amount in SOL --> total amout betted in SOL -- correct hai yeh 
-async function trial(){
+async function trial() {
   const allbets = await prisma.bet.findMany({})
   let SOL: number = 0;
   
@@ -210,12 +213,11 @@ async function trial(){
     SOL += allbets[i].stake;
   }
 
-  console.log("Logs inside the trial function inside the bet controller");
-  console.log("Amount betted in SOL: ", SOL);
-  console.log("Amount betted in dollars: ", SOL*239);
-
+  // console.log("Logs inside the trial function inside the bet controller");
+  // console.log("Amount betted in SOL: ", SOL);
+  // console.log("Amount betted in dollars: ", SOL*239);
+  return SOL;
 }
-trial();
 
 
 //1.21

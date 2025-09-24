@@ -20,5 +20,4 @@ exports.AmountInputs = zod_1.default.object({
 });
 exports.betInputs = zod_1.default.object({
     amount: zod_1.default.number().min(0.05),
-    // multiplier: zod.float32()
 });
