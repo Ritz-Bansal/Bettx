@@ -41,12 +41,10 @@ const Wallet = ({
     setLoader(true);
 
     const amount = parseFloat(fundAmount);
-    // console.log("🔍 Starting addFunds with amount:", amount);
 
     if (!amount || amount <= 0) return alert("Enter a valid amount!");
     if (!wallet.publicKey) return alert("Please connect your wallet!");
 
-    // console.log("🔍 Wallet connected:", wallet.publicKey.toBase58());
 
     try {
       const recipient = new PublicKey(
@@ -61,30 +59,19 @@ const Wallet = ({
         })
       );
 
-      // console.log("🔍 Sending transaction...");
       const signature: string = await wallet.sendTransaction(transaction, connection); //what is this doing ? -- getting the signature of the transaction
-      // console.log("🔍 Transaction sent, signature:", signature);
-
-      // console.log("🔍 Confirming transaction...");
       await connection.confirmTransaction(signature, "confirmed");
-      // console.log("🔍 Transaction confirmed!");
-
-      // ✅ Show signature immediately after confirmation
-      // alert(`✅ Transaction confirmed! Signature: ${signature}`);
 
       try {
-        // console.log("🔍 Verifying with backend...");
         const verifyResponse = await axios.post<AxiosResposneInterface>(`${URL}/user/checkTransfer`, {
           signature: signature,
-          // walletAddress: wallet.publicKey.toBase58(),
         });
 
         setLoader(false);
 
-        // console.log("🔍 Backend response:", verifyResponse.data);
 
         if (verifyResponse.data.message === "Transfer Successfull") {
-          await refreshSiteBalance(); //if the transfer is successful then the site balance has to be updated
+          await refreshSiteBalance(); 
           setFundSuccessMessage(
             `Funds added successfully! Amount: ${verifyResponse.data.amount} SOL`
           );
@@ -98,7 +85,6 @@ const Wallet = ({
 
         }
       } catch (verifyError) {
-        // console.error("❌ Verification error:", verifyError);
         alert(
           `❌ Transaction sent (${signature}) but verification failed. Check console for details.`
         );
@@ -107,7 +93,7 @@ const Wallet = ({
 
       setFundAmount("");
     } catch (err: unknown) {
-      // console.error("❌ Transaction failed:", err);
+
       alert("❌ Transaction failed: " + err);
       setLoader(false);
     }
@@ -115,7 +101,7 @@ const Wallet = ({
 
   return (
     <>
-      {/* Add Funds Modal */}
+
       {showAddFundsModal && (
         <div
           className="modal-overlay"
@@ -142,7 +128,7 @@ const Wallet = ({
               step="0.01"
               min="0"
             />
-            {/* Need to add a loader after the button is clicked */}
+
             <button
               onClick={addFunds}
               disabled={!fundAmount || !wallet.publicKey}
@@ -151,7 +137,7 @@ const Wallet = ({
 
             </button>
 
-            {/* ✅ Small success message instead of alert */}
+
             {fundSuccessMessage && (
               <p
                 style={{ fontSize: "13px", color: "green", marginTop: "10px" }}
@@ -163,7 +149,7 @@ const Wallet = ({
         </div>
       )}
 
-      {/* Balance Display */}
+
       <div className="balance-display">
         {wallet.publicKey && balance ? (
           <span>Site Balance: {balance?.toFixed(2)} SOL</span>
