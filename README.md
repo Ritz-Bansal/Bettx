@@ -1,4 +1,4 @@
-# 🎯 HackArena - Solana Betting Platform
+# 🎯 HackerArena - Solana Betting Platform
 
 A decentralized betting platform built on Solana blockchain where users can bet on competitive programming contests and hackathons.
 
@@ -81,7 +81,7 @@ A decentralized betting platform built on Solana blockchain where users can bet 
 ## 📁 Project Structure
 
 ```
-HackArena/
+Bettx/
 ├── backend/
 │   ├── src/
 │   │  ├── controllers/        # API route handlers
