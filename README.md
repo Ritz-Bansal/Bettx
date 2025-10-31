@@ -125,8 +125,6 @@ HackArena/
 - Input validation with Zod schemas
 - CORS protection
 
-## 🚀 Deployment
-
 ## 🤝 Contributing
 
 1. Fork the repository
