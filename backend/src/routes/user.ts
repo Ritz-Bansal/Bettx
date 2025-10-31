@@ -1,6 +1,6 @@
 import express from "express";
-import { checkBalance, checkTransfer, odds, testAPI } from "../controllers/user";
-// import { authMiddleware } from "../middlewares/auth.js";
+import { checkBalance, checkTransfer, odds } from "../controllers/user";
+
 
 export const userRoutes = express.Router();
 
@@ -12,4 +12,4 @@ userRoutes.get("/checkBalance/:walletAddress", checkBalance);
 
 userRoutes.post("/checkTransfer", checkTransfer);
 
-userRoutes.get("/test", testAPI);
+
